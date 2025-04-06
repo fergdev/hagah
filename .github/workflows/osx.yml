@@ -26,13 +26,10 @@ jobs:
           distribution: 'corretto'
           cache: gradle
 
-      - name: Set secrets
-        run: |
-          echo "storeFile=${{ steps.decode_keystore.outputs.filePath }}" >> keystore.properties
-          echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> keystore.properties
-          echo "keyPassword=${{ secrets.SIGNING_KEY_PASSWORD }}" >> keystore.properties
-          echo "keyAlias=${{ secrets.SIGNING_KEY_ALIAS }}" >> keystore.properties
-          echo "openAiApiKey=${{ secrets.OPEN_AI_API_KEY }}" >> keystore.properties
+      - name: Create local properties
+        env:
+          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+        run: echo "$LOCAL_PROPERTIES" | base64 --decode > local.properties
 
       - name: Build with Gradle
         run: ./gradlew packageDmg packageReleaseDmg packagePkg packageReleasePkg

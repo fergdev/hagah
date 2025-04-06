@@ -11,7 +11,7 @@ object Config {
 
     const val appName = "Hagah"
     const val group = "com.fergdev"
-    const val artifact = "hagah" // TODO Hagah
+    const val artifact = "hagah"
     const val artifactId = "$group.$artifact"
 
     // Versions
@@ -30,14 +30,6 @@ object Config {
 
     // Compose
     const val packageOfResClass = "$artifact.generated.resources"
-
-    object KeyStore {
-        const val propertiesFile = "keystore.properties"
-        const val storePasswordKey = "storePassword"
-        const val storeFileKey = "storeFile"
-        const val keyPasswordKey = "keyPassword"
-        const val aliasKey = "keyAlias"
-    }
 
     @Suppress("MaxLineLength")
     const val appDescription =

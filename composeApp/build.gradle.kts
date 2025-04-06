@@ -7,9 +7,6 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-import java.io.FileInputStream
-import java.io.IOException
-import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -19,12 +16,6 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.aboutLibs)
 }
-
-val keystorePropertiesFile = rootProject.file(Config.KeyStore.propertiesFile)
-val keystoreProperties = Properties()
-keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-val apiKey = keystoreProperties.getProperty("openAiApiKey")
-
 @Language("Kotlin")
 // language=kotlin
 val buildConfig = """
@@ -33,7 +24,7 @@ val buildConfig = """
         const val versionName = "${Config.versionName}"
         const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
         const val supportEmail = "${Config.supportEmail}"
-        const val apiKey = "$apiKey"
+        const val apiKey = "${localProperties().value.openApiKey()}"
     }
 """.trimIndent()
 
@@ -127,6 +118,11 @@ kotlin {
                     implementation(libs.navigation.compose)
                     implementation(libs.napier)
                     implementation(libs.compottie)
+
+                    implementation(libs.multiplatform.settings)
+                    implementation(libs.multiplatform.settings.coroutines)
+                    implementation(libs.multiplatform.settings.no.arg)
+                    implementation(libs.multiplatform.settings.observable)
                 }
             }
         }
@@ -182,16 +178,11 @@ android {
     }
     signingConfigs {
         create("release") {
-            val keystorePropertiesFile = rootProject.file(Config.KeyStore.propertiesFile)
-            val keystoreProperties = Properties()
-            try {
-                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-                storePassword = keystoreProperties.getProperty(Config.KeyStore.storePasswordKey)
-                storeFile = File(keystoreProperties.getProperty(Config.KeyStore.storeFileKey))
-                keyPassword = keystoreProperties.getProperty(Config.KeyStore.keyPasswordKey)
-                keyAlias = keystoreProperties.getProperty(Config.KeyStore.aliasKey)
-            } catch (e: IOException) {
-                println("There was an error with the keystore $e")
+            with(localProperties().value) {
+                storePassword = storePassword()
+                storeFile = File(rootDir, storeFilePath())
+                keyPassword = keyPassword()
+                keyAlias = keyAlias()
             }
         }
     }
