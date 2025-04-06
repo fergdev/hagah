@@ -230,6 +230,11 @@ compose {
     web { }
     desktop {
         application {
+            buildTypes.release.proguard {
+                obfuscate = false
+                optimize = false // TODO: Solve the issues with ktor and compose-desktop...
+                configurationFiles.from(projectDir.resolve("proguard-rules.pro"))
+            }
             mainClass = Config.mainClass
             nativeDistributions {
                 targetFormats(
