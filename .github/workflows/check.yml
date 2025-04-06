@@ -33,7 +33,7 @@ jobs:
         id: decode_keystore
         uses: timheuer/base64-to-file@v1
         with:
-          fileName: 'timerx.jks'
+          fileName: 'hagah.jks'
           encodedString: ${{ secrets.KEYSTORE }}
 
       - name: Set secrets

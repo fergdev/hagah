@@ -41,7 +41,7 @@ object Config {
 
     @Suppress("MaxLineLength")
     const val appDescription =
-        "TimerX is a beautiful, fully customizable HIT timer designed to help you crush your fitness goals by keeping you focused and in control during every workout."
+        "TODO"
     const val vendorName = "Ferg.Dev"
     const val licenseFile = "LICENSE.txt"
     val javaVersion = JavaVersion.VERSION_17
@@ -51,7 +51,7 @@ object Config {
     const val appId = "4a07189f-4143-4a90-9f53-1eedd74ddbeb"
     const val supportEmail = "ferg.dev@outlook.com"
     const val privacyPolicyUrl =
-        "https://doc-hosting.flycricket.io/timerx-privacy-policy/2fa3244e-cdef-4ec8-b776-6c03e94e8fab/privacy"
+        "TODO"
 
     val stabilityLevels = listOf("snapshot", "eap", "preview", "alpha", "beta", "m", "cr", "rc")
     val minStabilityLevel = stabilityLevels.indexOf("beta")
