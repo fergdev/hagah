@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.aboutLibs)
 }
+
 @Language("Kotlin")
 // language=kotlin
 val buildConfig = """
@@ -180,7 +181,7 @@ android {
         create("release") {
             with(localProperties().value) {
                 storePassword = storePassword()
-                storeFile = File(rootDir, storeFilePath())
+                storeFile = File(rootDir, Config.storeFilePath)
                 keyPassword = keyPassword()
                 keyAlias = keyAlias()
             }

@@ -69,6 +69,8 @@ object Config {
         add("-Xlambdas=indy")
     }
 
+    const val storeFilePath = "certificates/hagah.jks"
+
     object Detekt {
         const val CONFIG_FILE = "detekt.yml"
         val includedFiles = listOf("**/*.kt", "**/*.kts")
