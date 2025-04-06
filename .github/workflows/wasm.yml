@@ -40,7 +40,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main'
         with:
-          path: 'shared/build/dist/wasmJs/productionExecutable'
+          path: 'composeApp/build/dist/wasmJs/productionExecutable'
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'

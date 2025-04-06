@@ -32,26 +32,26 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Exe-Release
-          path: shared/build/compose/binaries/main-release/exe/com.fergdev.hagah**.exe
+          path: composeApp/build/compose/binaries/main-release/exe/com.fergdev.hagah**.exe
           if-no-files-found: error
 
       - name: Archive Exe Debug
         uses: actions/upload-artifact@v4
         with:
           name: Exe-Debug
-          path: shared/build/compose/binaries/main/exe/com.fergdev.hagah**.exe
+          path: composeApp/shared/build/compose/binaries/main/exe/com.fergdev.hagah**.exe
           if-no-files-found: error
 
       - name: Archive MSI Release
         uses: actions/upload-artifact@v4
         with:
           name: MSI-Release
-          path: shared/build/compose/binaries/main-release/msi/com.ferdev.hagah**.msi
+          path: composeApp/build/compose/binaries/main-release/msi/com.ferdev.hagah**.msi
           if-no-files-found: error
 
       - name: Archive MSI Debug
         uses: actions/upload-artifact@v4
         with:
           name: MSI-Debug
-          path: shared/build/compose/binaries/main/msi/com.ferdev.hagah**.msi
+          path: composeApp/build/compose/binaries/main/msi/com.ferdev.hagah**.msi
           if-no-files-found: error
