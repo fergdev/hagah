@@ -19,13 +19,10 @@ jobs:
           java-version: 17
           cache: 'gradle'
 
-      - name: Set secrets
-        run: |
-          echo "storeFile=${{ steps.decode_keystore.outputs.filePath }}" >> keystore.properties
-          echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> keystore.properties
-          echo "keyPassword=${{ secrets.SIGNING_KEY_PASSWORD }}" >> keystore.properties
-          echo "keyAlias=${{ secrets.SIGNING_KEY_ALIAS }}" >> keystore.properties
-          echo "openAiApiKey=${{ secrets.OPEN_AI_API_KEY }}" >> keystore.properties
+      - name: Create local properties
+        env:
+          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+        run: echo "$LOCAL_PROPERTIES" | base64 --decode > local.properties
 
       - name: Build
         run: |
@@ -45,16 +42,17 @@ jobs:
           path: composeApp/build/compose/binaries/main/exe/com.fergdev.hagah**.exe
           if-no-files-found: error
 
-      - name: Archive MSI Release
-        uses: actions/upload-artifact@v4
-        with:
-          name: MSI-Release
-          path: composeApp/build/compose/binaries/main-release/msi/com.ferdev.hagah**.msi
-          if-no-files-found: error
-
-      - name: Archive MSI Debug
-        uses: actions/upload-artifact@v4
-        with:
-          name: MSI-Debug
-          path: composeApp/build/compose/binaries/main/msi/com.ferdev.hagah**.msi
-          if-no-files-found: error
+# TODO fix msi
+#      - name: Archive MSI Release
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: MSI-Release
+#          path: composeApp/build/compose/binaries/main-release/msi/com.ferdev.hagah**.msi
+#          if-no-files-found: error
+#
+#      - name: Archive MSI Debug
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: MSI-Debug
+#          path: composeApp/build/compose/binaries/main/msi/com.ferdev.hagah**.msi
+#          if-no-files-found: error
