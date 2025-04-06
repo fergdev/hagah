@@ -11,7 +11,7 @@ object Config {
 
     const val appName = "Hagah"
     const val group = "com.fergdev"
-    const val artifact = "dailydevotional" // TODO Hagah
+    const val artifact = "hagah" // TODO Hagah
     const val artifactId = "$group.$artifact"
 
     // Versions
