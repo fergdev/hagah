@@ -42,6 +42,7 @@ jobs:
           echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> keystore.properties
           echo "keyPassword=${{ secrets.SIGNING_KEY_PASSWORD }}" >> keystore.properties
           echo "keyAlias=${{ secrets.SIGNING_KEY_ALIAS }}" >> keystore.properties
+          echo "openAiApiKey=${{ secrets.OPEN_AI_API_KEY }}" >> keystore.properties
 
       - name: Check
         run: ./gradlew bundle
