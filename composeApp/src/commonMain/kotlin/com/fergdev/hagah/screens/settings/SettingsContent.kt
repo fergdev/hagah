@@ -27,4 +27,3 @@ fun SettingsScreen(onBack: () -> Unit) {
         }
     }
 }
-

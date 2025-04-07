@@ -38,7 +38,6 @@ fun MainSettingsContent(
                 }
             }
             item {
-
             }
         }
     }

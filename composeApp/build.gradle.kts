@@ -5,14 +5,11 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-//    id(libs.plugins.kotlinMultiplatform.id)
-//    id(libs.plugins.androidApplication.id)
-    alias(libs.plugins.androidApplication)
+    id(libs.plugins.kotlinMultiplatform.id)
+    id(libs.plugins.androidApplication.id)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
@@ -81,13 +78,13 @@ kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(Config.jvmTarget)
             freeCompilerArgs.addAll(Config.jvmCompilerArgs)
         }
     }
 
     sourceSets {
-        commonMain{
+        commonMain {
             kotlin.srcDir(generateBuildConfig.map { it.destinationDir })
 
             @Suppress("OPT_IN_USAGE")
@@ -117,8 +114,6 @@ kotlin {
 
                     implementation(libs.aboutLibs)
 
-//            implementation(libs.coil.compose)
-//            implementation(libs.coil.network.ktor)
                     implementation(libs.koin.core)
                     implementation(libs.koin.compose.viewmodel)
                     implementation(libs.navigation.compose)
@@ -141,11 +136,12 @@ kotlin {
         }
         androidMain {
             dependencies {
-                implementation(libs.androidx.compose.ui.tooling.preview)
                 implementation(libs.androidx.activity.compose)
-                implementation(libs.ktor.client.okhttp)
+                implementation(libs.androidx.compose.ui.tooling.preview)
                 implementation(libs.androidx.foundation.layout.android)
-                api(libs.koin.android)
+                implementation(libs.koin.android)
+                implementation(libs.kstore.file)
+                implementation(libs.ktor.client.okhttp)
             }
         }
         iosMain {
@@ -326,7 +322,7 @@ aboutLibraries {
     // Allowed set of licenses for specific dependencies, this project will be able to use without build failure
     allowedLicensesMap = mapOf(Pair("asdkl", listOf("androidx.jetpack.library")))
     // Enable the duplication mode, allows to merge, or link dependencies which relate
-    duplicationMode = DuplicateMode.LINK
+    duplicationMode = DuplicateMode.MERGE
     // Configure the duplication rule, to match "duplicates" with
     duplicationRule = DuplicateRule.SIMPLE
     // Enable pretty printing for the generated JSON file
