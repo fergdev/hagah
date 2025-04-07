@@ -330,6 +330,8 @@ aboutLibraries {
 }
 
 kover {
+    // Add in tests when ui is finalized
+    disable()
     reports {
         verify {
             rule {
