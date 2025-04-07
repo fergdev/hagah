@@ -32,7 +32,7 @@ data class VerseDto(
     val text: String
 )
 
-fun DailyDevotionalDto.toDomain()= DailyDevotional (
+fun DailyDevotionalDto.toDomain() = DailyDevotional(
     date = Clock.System.now(),
     verse = verseDto.toDomain(),
     reflection = reflection,

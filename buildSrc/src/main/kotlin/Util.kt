@@ -1,10 +1,10 @@
 @file:Suppress("MissingPackageDeclaration")
 
 import org.gradle.api.Project
+import org.gradle.plugin.use.PluginDependency
 import java.io.File
 import java.io.FileInputStream
 import java.util.Properties
-import org.gradle.plugin.use.PluginDependency
 
 fun stabilityLevel(version: String): Int {
     Config.stabilityLevels.forEachIndexed { index, postfix ->

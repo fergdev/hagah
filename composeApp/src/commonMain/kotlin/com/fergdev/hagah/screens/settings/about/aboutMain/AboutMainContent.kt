@@ -31,8 +31,6 @@ fun AboutMainContent(onBack: () -> Unit) {
             )
         }
     ) {
-
-
     }
 
     if (aboutLibsVisible) {

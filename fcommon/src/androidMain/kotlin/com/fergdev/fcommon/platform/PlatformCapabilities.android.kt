@@ -2,7 +2,7 @@ package com.fergdev.fcommon.platform
 
 import android.os.Build
 
-public actual val platformCapabilities : PlatformCapabilities =
+public actual val platformCapabilities: PlatformCapabilities =
     PlatformCapabilities(
         canSystemDynamicTheme = supportsDynamicColors,
         canVibrate = true,

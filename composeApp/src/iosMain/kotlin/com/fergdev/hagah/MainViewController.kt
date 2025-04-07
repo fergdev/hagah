@@ -4,8 +4,6 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.fergdev.hagah.data.DailyDevotional
 import com.fergdev.hagah.data.storage.HagahDb
 import com.fergdev.hagah.di.startKoin
-import io.github.aakira.napier.DebugAntilog
-import io.github.aakira.napier.Napier
 import io.github.xxfast.kstore.file.FileCodec
 import io.github.xxfast.kstore.storeOf
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -36,7 +34,6 @@ private val desktopModule = module {
 
 @Suppress("unused", "FunctionName")
 fun MainViewController() = ComposeUIViewController {
-    Napier.base(DebugAntilog())
     startKoin(modules = listOf(desktopModule))
     App()
 }

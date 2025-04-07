@@ -18,9 +18,8 @@ val wasmModule = module {
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    startKoin(modules = listOf(wasmModule))
     ComposeViewport(document.body!!) {
-        startKoin()
+        startKoin(modules = listOf(wasmModule))
         App()
     }
 }

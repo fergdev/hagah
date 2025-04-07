@@ -2,18 +2,21 @@ import nl.littlerobots.vcu.plugin.versionSelector
 
 plugins {
     alias(libs.plugins.detekt)
-    alias(libs.plugins.androidApplication) apply false
-    alias(libs.plugins.composeCompiler) apply false
-    alias(libs.plugins.composeMultiplatform) apply false
-    alias(libs.plugins.kotlinMultiplatform) apply false
-    alias(libs.plugins.kotlinxSerialization) apply false
-    alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.kotest)
     alias(libs.plugins.kover)
     alias(libs.plugins.gradleDoctor)
     alias(libs.plugins.version.catalog.update)
+
+    alias(libs.plugins.composeCompiler) apply false
+    alias(libs.plugins.composeMultiplatform) apply false
+    alias(libs.plugins.kotlinxSerialization) apply false
     alias(libs.plugins.aboutLibs) apply false
-    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
+
+//    Applied by convention
+//    alias(libs.plugins.androidApplication) apply false
+//    alias(libs.plugins.kotlinMultiplatform) apply false
+//    alias(libs.plugins.kotlinJvm) apply false
+//    alias(libs.plugins.android.kotlin.multiplatform.library) apply false
 }
 
 allprojects {

@@ -3,8 +3,8 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.android.kotlin.multiplatform.library)
+    id(libs.plugins.kotlinMultiplatform.id)
+    id(libs.plugins.android.kotlin.multiplatform.library.id)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
 }
@@ -38,7 +38,7 @@ kotlin {
         iosX64(),
         iosArm64(),
         iosSimulatorArm64()
-    //noinspection WrongGradleMethod
+        //noinspection WrongGradleMethod
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = xcfName
@@ -87,7 +87,6 @@ kotlin {
             implementation(fLibs.kotlin.coroutines.swing)
         }
         wasmJs {
-
         }
     }
     sourceSets.apply {

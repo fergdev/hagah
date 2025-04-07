@@ -18,7 +18,6 @@ fun AboutNav(onBack: () -> Unit) {
             AboutMainContent(onBack)
         }
         composable("aboutVersion") {
-
         }
     }
 }

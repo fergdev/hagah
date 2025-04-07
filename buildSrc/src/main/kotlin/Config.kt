@@ -4,11 +4,9 @@
 )
 
 import org.gradle.api.JavaVersion
-//import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 object Config {
-//        val jvmTarget = JvmTarget.JVM_11
-//    val idePluginJvmTarget = JvmTarget.JVM_17
 
     const val appName = "Hagah"
     const val group = "com.fergdev"
@@ -26,6 +24,9 @@ object Config {
 
     // Android
     const val namespace = artifactId
+    const val compileSdk = 35
+    const val targetSdk = compileSdk
+    const val minSdk = 21
 
     // Desktop
     const val mainClass = "$namespace.MainKt"
@@ -33,21 +34,18 @@ object Config {
     // Compose
     const val packageOfResClass = "$artifact.generated.resources"
 
-    @Suppress("MaxLineLength")
     const val appDescription = "TODO"
     const val vendorName = "Ferg.Dev"
     const val licenseFile = "LICENSE.txt"
-    const val compileSdk = 35
-    const val targetSdk = compileSdk
-    const val minSdk = 21
     const val appId = "4a07189f-4143-4a90-9f53-1eedd74ddbeb"
     const val supportEmail = "ferg.dev@outlook.com"
-    const val privacyPolicyUrl =
-        "TODO"
+    const val privacyPolicyUrl = "TODO"
 
+    // Versions
     val stabilityLevels = listOf("snapshot", "eap", "preview", "alpha", "beta", "m", "cr", "rc")
     val minStabilityLevel = stabilityLevels.indexOf("beta")
 
+    // Args
     val optIns = listOf(
         "kotlinx.coroutines.ExperimentalCoroutinesApi",
         "kotlinx.coroutines.FlowPreview",
@@ -69,9 +67,10 @@ object Config {
         add("-Xlambdas=indy")
     }
 
-//    val jvmTarget = JvmTarget.JVM_17
-//    val idePluginJvmTarget = JvmTarget.JVM_17
-    val javaVersion = JavaVersion.VERSION_11
+    // JVM
+    val jvmTarget = JvmTarget.JVM_17
+    val idePluginJvmTarget = JvmTarget.JVM_17
+    val javaVersion = JavaVersion.VERSION_17
 
     const val storeFilePath = "certificates/hagah.jks"
 
