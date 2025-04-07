@@ -3,6 +3,7 @@ aboutLibs = "11.2.3"
 agp = "8.9.1"
 androidx-activityCompose = "1.10.1"
 androidx-ui-tooling = "1.7.8"
+appdirs = "1.1.1"
 compose-multiplatform = "1.7.3"
 composeDetektPlugin = "1.4.0"
 compottie = "2.0.0-rc04"
@@ -14,7 +15,7 @@ gradleDoctorPlugin = "0.10.0"
 junit = "1.2.1"
 koin = "4.0.4"
 kotest = "6.0.0.M3"
-kotlin = "2.0.21"
+kotlin = "2.1.20"
 kotlinStdlib = "2.0.21"
 kotlinTest = "2.0.21"
 kotlinx-coroutines = "1.10.1"
@@ -25,9 +26,9 @@ napier = "2.7.1"
 navigationCompose = "2.8.0-alpha08"
 runner = "1.5.2"
 versionCatalogUpdatePlugin = "1.0.0"
-
-# Image loading
-#coil = "3.0.0"
+arrow = "2.0.0"
+kstore = "0.9.1"
+kotlinx-datetime = "0.6.2"
 
 [libraries]
 kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -45,14 +46,18 @@ detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", 
 detekt-gradle = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 detekt-libraries = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries", version.ref = "detekt" }
 
+appdirs = {module = "ca.gosyer:kotlin-multiplatform-appdirs", version.ref = "appdirs" }
+
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 
 # DI
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 
 # Coroutines
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 # Networking
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
@@ -74,10 +79,8 @@ androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
 
 aboutLibs = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibs" }
-
-# Image loading
-#coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
-#coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coil" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 
 # Settings
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
@@ -85,6 +88,11 @@ multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-sett
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
 multiplatform-settings-observable = { module = "com.russhwolf:multiplatform-settings-make-observable", version.ref = "multiplatformSettings" }
 multiplatform-settings-test = { module = "com.russhwolf:multiplatform-settings-test", version.ref = "multiplatformSettings" }
+
+# Storage
+kstore = { module = "io.github.xxfast:kstore", version.ref = "kstore" }
+kstore-storage = { module = "io.github.xxfast:kstore-storage", version.ref = "kstore" }
+kstore-file = { module = "io.github.xxfast:kstore-file", version.ref = "kstore" }
 
 [plugins]
 aboutLibs = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibs" }

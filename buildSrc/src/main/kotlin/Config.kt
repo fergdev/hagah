@@ -4,6 +4,7 @@
 )
 
 import org.gradle.api.JavaVersion
+//import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 object Config {
 //        val jvmTarget = JvmTarget.JVM_11
@@ -19,8 +20,9 @@ object Config {
     const val majorRelease = 1
     const val minorRelease = 0
     const val patch = 0
+    const val postfix = "-beta01" // include dash (-)
     const val majorVersionName = "$majorRelease.$minorRelease.$patch"
-    const val versionName = "$majorRelease.$minorRelease.$patch"
+    const val versionName = "$majorVersionName$postfix"
 
     // Android
     const val namespace = artifactId
@@ -32,11 +34,9 @@ object Config {
     const val packageOfResClass = "$artifact.generated.resources"
 
     @Suppress("MaxLineLength")
-    const val appDescription =
-        "TODO"
+    const val appDescription = "TODO"
     const val vendorName = "Ferg.Dev"
     const val licenseFile = "LICENSE.txt"
-    val javaVersion = JavaVersion.VERSION_17
     const val compileSdk = 35
     const val targetSdk = compileSdk
     const val minSdk = 21
@@ -68,6 +68,10 @@ object Config {
         add("-Xstring-concat=inline")
         add("-Xlambdas=indy")
     }
+
+//    val jvmTarget = JvmTarget.JVM_17
+//    val idePluginJvmTarget = JvmTarget.JVM_17
+    val javaVersion = JavaVersion.VERSION_11
 
     const val storeFilePath = "certificates/hagah.jks"
 

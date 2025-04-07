@@ -10,11 +10,14 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+//    id(libs.plugins.kotlinMultiplatform.id)
+//    id(libs.plugins.androidApplication.id)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.aboutLibs)
+    alias(libs.plugins.kover)
 }
 
 @Language("Kotlin")
@@ -22,6 +25,7 @@ plugins {
 val buildConfig = """
     package ${Config.namespace}
     internal object BuildFlags {
+        const val appName = "${Config.appName}"
         const val versionName = "${Config.versionName}"
         const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
         const val supportEmail = "${Config.supportEmail}"
@@ -42,7 +46,7 @@ kotlin {
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "composeApp"
+        outputModuleName = "composeApp"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -83,7 +87,7 @@ kotlin {
     }
 
     sourceSets {
-        commonMain {
+        commonMain{
             kotlin.srcDir(generateBuildConfig.map { it.destinationDir })
 
             @Suppress("OPT_IN_USAGE")
@@ -98,6 +102,7 @@ kotlin {
                 }
 
                 dependencies {
+                    implementation(projects.fcommon)
                     implementation(compose.runtime)
                     implementation(compose.foundation)
                     implementation(compose.material3)
@@ -124,27 +129,43 @@ kotlin {
                     implementation(libs.multiplatform.settings.coroutines)
                     implementation(libs.multiplatform.settings.no.arg)
                     implementation(libs.multiplatform.settings.observable)
+
+                    implementation(libs.arrow.core)
+                    implementation(libs.arrow.fx.coroutines)
+
+                    implementation(libs.kstore)
+
+                    implementation(libs.kotlinx.datetime)
                 }
             }
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.compose.ui.tooling.preview)
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.androidx.foundation.layout.android)
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.compose.ui.tooling.preview)
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.androidx.foundation.layout.android)
+                api(libs.koin.android)
+            }
         }
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-            implementation(libs.ktor.client.content.negotiation)
+        iosMain {
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.kstore.file)
+            }
         }
         val desktopMain by getting
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.ktor.client.apache)
+            implementation(libs.appdirs)
+            implementation(libs.kstore.file)
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
+            implementation(libs.kstore.storage)
         }
     }
 }
@@ -271,7 +292,7 @@ compose {
     }
 }
 
-tasks.withType<JavaExec>().named { it == "desktopRun" }
+tasks.withType<JavaExec>().named { it == "composeApp:desktopRun" }
     .configureEach { mainClass = Config.mainClass }
 
 aboutLibraries {
@@ -310,4 +331,26 @@ aboutLibraries {
     duplicationRule = DuplicateRule.SIMPLE
     // Enable pretty printing for the generated JSON file
     prettyPrint = true
+}
+
+kover {
+    reports {
+        verify {
+            rule {
+                bound { minValue = 21 }
+            }
+        }
+        filters {
+            excludes {
+                androidGeneratedClasses()
+                annotatedBy("com.timerx.util.KoverIgnore")
+                packages("timerx.shared.generated.resources")
+                classes("*\$special$\$inlined\$map*")
+                classes("*$\$inlined\$singleOf*")
+                classes("*$\$inlined\$factoryOf\$default$*")
+                classes("*$\$inlined\$activate\$default$*")
+                classes("*$\$inlined\$dismiss\$default$*")
+            }
+        }
+    }
 }

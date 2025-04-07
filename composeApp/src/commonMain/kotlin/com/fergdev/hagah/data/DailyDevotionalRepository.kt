@@ -1,17 +1,25 @@
 package com.fergdev.hagah.data
 
-class DailyDevotionalRepository {
-//    private val dailyDevotionalApi: DailyDevotionalApi,
-//    private val museumStorage: DailyDevotionalStorage,
-//    private val scope = CoroutineScope(SupervisorJob())
+import arrow.core.Either
+import com.fergdev.hagah.data.api.DailyDevotionalApi
+import com.fergdev.hagah.data.storage.DailyDevotionalStorage
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEach
 
-//    fun initialize() : List<DailyDevotional> {
-//        scope.launch {
-//
-//        }
-//    }
+interface DailyDevotionalRepository {
+    suspend fun requestDailyDevotional(): Flow<Either<DailyDevotional, DailyDevotionalApi.DevotionalError>>
+    suspend fun history(): Flow<List<DailyDevotional>>
+}
 
-    fun refresh() {
-//        museumStorage.saveObjects(museumApi.getData())
-    }
+class DailyDevotionalRepositoryImpl(
+    private val dailyDevotionalApi: DailyDevotionalApi,
+    private val dailyDevotionalStorage: DailyDevotionalStorage
+) : DailyDevotionalRepository {
+    override suspend fun history() = dailyDevotionalStorage.history()
+    override suspend fun requestDailyDevotional() =
+        this.dailyDevotionalApi.getData().onEach { either ->
+            either.onLeft {
+                dailyDevotionalStorage.addDevotional(it)
+            }
+        }
 }

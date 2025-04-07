@@ -26,6 +26,12 @@ dependencyResolutionManagement {
         }
         mavenCentral()
     }
+    versionCatalogs {
+        create("fLibs") {
+            from(files("fcommon/libs.versions.toml"))
+        }
+    }
 }
 
 include(":composeApp")
+include(":fcommon")
