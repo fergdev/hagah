@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -27,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,9 +39,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.fergdev.hagah.data.DailyDevotional
 import com.fergdev.hagah.screens.main.MainViewModel.State
 import com.fergdev.hagah.ui.FIconButton
 import hagah.generated.resources.Res
@@ -74,7 +75,7 @@ fun MainScreen(navController: NavController) {
     ) { padding ->
 
         val viewModel = koinViewModel<MainViewModel>()
-        val state by viewModel.state.collectAsStateWithLifecycle()
+        val state by viewModel.state.collectAsState()
 
         when (state) {
             is State.Loading -> {
@@ -84,8 +85,7 @@ fun MainScreen(navController: NavController) {
             }
 
             is State.Success -> {
-                var devotional by remember { mutableStateOf((state as State.Success).dailyDevotional) }
-                SuccessContent(padding, devotional)
+                SuccessContent(padding, state as State.Success)
             }
 
             is State.Error -> {
@@ -105,8 +105,9 @@ fun MainScreen(navController: NavController) {
 @Composable
 private fun SuccessContent(
     padding: PaddingValues,
-    devotional: DailyDevotional,
+    success: State.Success
 ) {
+    val devotional = success.dailyDevotional
     LazyColumn(
         modifier = Modifier.padding(16.dp),
         contentPadding = padding,
@@ -155,6 +156,21 @@ private fun SuccessContent(
         item {
             SectionCard(title = "Call to Action", animationPath = "files/workout.json") {
                 BodyText(devotional.callToAction)
+            }
+        }
+        item {
+            HorizontalPager(
+                state = rememberPagerState { success.history.size },
+                pageSpacing = 16.dp,
+            ) {
+                val item = success.history[it]
+                Card(modifier = Modifier.fillMaxSize()) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(text = item.date.toString())
+                        Text(text = item.verse.reference)
+                        Text(text = item.verse.text)
+                    }
+                }
             }
         }
         item {

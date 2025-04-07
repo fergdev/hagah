@@ -18,7 +18,11 @@ fun App() {
             val navController = rememberNavController()
             NavHost(navController = navController, startDestination = "main") {
                 composable("main") { MainScreen(navController) }
-                composable("settings") { SettingsScreen(navController) }
+                composable("settings") {
+                    SettingsScreen {
+                        navController.popBackStack()
+                    }
+                }
             }
         }
     }

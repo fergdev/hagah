@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import java.io.File
 import java.io.FileInputStream
 import java.util.Properties
+import org.gradle.plugin.use.PluginDependency
 
 fun stabilityLevel(version: String): Int {
     Config.stabilityLevels.forEachIndexed { index, postfix ->
@@ -23,3 +24,4 @@ fun Project.localProperties() = lazy {
         load(FileInputStream(file))
     }
 }
+val org.gradle.api.provider.Provider<PluginDependency>.id: String get() = get().pluginId

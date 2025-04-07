@@ -1,4 +1,4 @@
-package com.fergdev.hagah.screens.settings.aboutlibs
+package com.fergdev.hagah.screens.settings.about.aboutlibs
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
