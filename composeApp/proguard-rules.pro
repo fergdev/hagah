@@ -109,3 +109,6 @@
 -optimizationpasses 5
 # Dalvik VM can't handle static overridden fields, do not enable
 # -overloadaggressively
+
+-dontwarn org.slf4j.**
+-dontwarn io.github.oshai.kotlinlogging.logback.**

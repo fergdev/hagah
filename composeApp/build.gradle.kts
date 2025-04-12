@@ -270,6 +270,7 @@ compose {
     desktop {
         application {
             buildTypes.release.proguard {
+                version.set("7.7.0") // TODO test this for other builds
                 obfuscate = false
                 optimize = false // TODO: Solve the issues with ktor and compose-desktop...
                 configurationFiles.from(projectDir.resolve("proguard-rules.pro"))
