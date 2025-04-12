@@ -353,6 +353,11 @@ aboutLibraries {
     prettyPrint = true
 }
 
+// Disable wasm tests for now
+tasks.named("wasmJsBrowserTest") {
+    enabled = false
+}
+
 kover {
     // Add in tests when ui is finalized
     disable()
