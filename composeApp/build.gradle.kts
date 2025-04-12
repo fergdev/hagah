@@ -233,7 +233,7 @@ android {
         create("release") {
             with(localProperties().value) {
                 storePassword = storePassword()
-                storeFile = File(keyStorePath())
+                storeFile = File(rootDir, keyStorePath())
                 keyPassword = keyPassword()
                 keyAlias = keyAlias()
             }
