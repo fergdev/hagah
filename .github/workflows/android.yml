@@ -36,6 +36,7 @@ jobs:
         id: decode_keystore
         uses: timheuer/base64-to-file@v1
         with:
+          fileDir: '.'
           fileName: 'hagah.jks'
           encodedString: ${{ secrets.KEY_STORE }}
 
