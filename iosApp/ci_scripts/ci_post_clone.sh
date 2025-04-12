@@ -40,7 +40,7 @@ install_jdk_if_needed() {
     # Download and un-tar JDK to our defined location.
     jdk_url="https://download.oracle.com/java/20/archive/${tar_name}"
     echo "Downloading $jdk_url"
-    curl -OL jdk_url
+    curl -OL $jdk_url
     tar xzf $tar_name -C $root_dir
     # Move the JDK to our desired location.
     rm -rf $jdk_dir
