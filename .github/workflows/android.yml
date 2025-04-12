@@ -29,7 +29,15 @@ jobs:
       - name: Create local properties
         env:
           LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+
+      - name: Create keystore
         run: echo "$LOCAL_PROPERTIES" | base64 --decode > local.properties
+               - name: Decode Keystore
+               id: decode_keystore
+               uses: timheuer/base64-to-file@v1
+               with:
+                 fileName: 'hagah.jks'
+                 encodedString: ${{ secrets.KEY_STORE }}
 
       - name: Check
         run: ./gradlew bundle

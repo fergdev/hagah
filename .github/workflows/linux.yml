@@ -25,6 +25,15 @@ jobs:
           LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
         run: echo "$LOCAL_PROPERTIES" | base64 --decode > local.properties
 
+      - name: Create keystore
+        run: echo "$LOCAL_PROPERTIES" | base64 --decode > local.properties
+               - name: Decode Keystore
+               id: decode_keystore
+               uses: timheuer/base64-to-file@v1
+               with:
+                 fileName: 'hagah.jks'
+                 encodedString: ${{ secrets.KEY_STORE }}
+
       - name: Create linux Deb
         run: ./gradlew packageDeb packageReleaseDeb packageRpm packageReleaseRpm
 

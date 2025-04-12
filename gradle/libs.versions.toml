@@ -1,37 +1,54 @@
 [versions]
-aboutLibs = "11.2.3"
+androidJunit5Plugin = "1.12.0.0"
+aboutLibs = "11.6.3"
 agp = "8.9.1"
 androidx-activityCompose = "1.10.1"
+androidx-core = "1.6.1"
 androidx-ui-tooling = "1.7.8"
-appdirs = "1.1.1"
+appdirs = "1.2.0"
+arrow = "2.0.1"
+coil = "3.1.0"
 compose-multiplatform = "1.7.3"
 composeDetektPlugin = "1.4.0"
+composemediaplayer = "0.6.0"
 compottie = "2.0.0-rc04"
-core = "1.5.0"
 desugar_jdk_libs = "2.1.5"
 detekt = "1.23.8"
 foundationLayoutAndroid = "1.7.8"
 gradleDoctorPlugin = "0.10.0"
-junit = "1.2.1"
+haze = "1.5.2"
+junit = "5.12.1"
 koin = "4.0.4"
 kotest = "6.0.0.M3"
 kotlin = "2.1.20"
-kotlinStdlib = "2.0.21"
-kotlinTest = "2.0.21"
+kotlinStdlib = "2.1.20"
+kotlinTest = "2.1.10"
 kotlinx-coroutines = "1.10.1"
+kotlinx-datetime = "0.6.2"
+kotlinxBrowserWasmJs = "0.3"
 kover = "0.9.1"
+kstore = "0.9.1"
 ktor = "3.0.0" # careful - will break ios if upgraded
-multiplatformSettings = "1.2.0"
+exoplayer = "1.6.0"
+mokkery = "2.7.2"
+multiplatformSettings = "1.3.0"
 napier = "2.7.1"
 navigationCompose = "2.8.0-alpha08"
-runner = "1.5.2"
+runner = "1.6.2"
+turbine = "1.2.0"
 versionCatalogUpdatePlugin = "1.0.0"
-arrow = "2.0.0"
-kstore = "0.9.1"
-kotlinx-datetime = "0.6.2"
 
 [libraries]
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "exoplayer" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "exoplayer" }
+androidx-media3-compose = { module = "androidx.media3:media3-compose", version.ref = "exoplayer" }
+
+composemediaplayer = { module = "io.github.kdroidfilter:composemediaplayer", version.ref = "composemediaplayer" }
+
+haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
+haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = "haze" }
+
 kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "androidx-ui-tooling" }
@@ -47,18 +64,27 @@ detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", 
 detekt-gradle = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 detekt-libraries = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries", version.ref = "detekt" }
 
-appdirs = {module = "ca.gosyer:kotlin-multiplatform-appdirs", version.ref = "appdirs" }
+appdirs = { module = "ca.gosyer:kotlin-multiplatform-appdirs", version.ref = "appdirs" }
 
 desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 
+kotlinx-browser-wasm-js = { module = "org.jetbrains.kotlinx:kotlinx-browser-wasm-js", version.ref = "kotlinxBrowserWasmJs" }
+
 # DI
-koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 
 # Coroutines
+kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+
+# Image loading
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg", version.ref = "coil" }
 
 # Networking
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
@@ -76,7 +102,7 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
-androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
+androidx-core = { group = "androidx.test", name = "core", version.ref = "androidx-core" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit" }
 
 aboutLibs = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutLibs" }
@@ -95,10 +121,20 @@ kstore = { module = "io.github.xxfast:kstore", version.ref = "kstore" }
 kstore-storage = { module = "io.github.xxfast:kstore-storage", version.ref = "kstore" }
 kstore-file = { module = "io.github.xxfast:kstore-file", version.ref = "kstore" }
 
+junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+kotest = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+
 [plugins]
 aboutLibs = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutLibs" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidJunit5 = { id = "de.mannodermaus.android-junit5", version.ref = "androidJunit5Plugin" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
@@ -108,4 +144,5 @@ kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+mokkery = { id = "dev.mokkery", version.ref = "mokkery" }
 version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdatePlugin" }

@@ -56,6 +56,8 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.ui)
                 implementation(compose.components.uiToolingPreview)
+                implementation(libs.kotlinx.datetime)
+                implementation(compose.material3)
             }
         }
 
@@ -70,15 +72,6 @@ kotlin {
                 implementation(fLibs.kotlin.coroutines.android)
             }
         }
-
-        getByName("androidDeviceTest") {
-            dependencies {
-                implementation(libs.androidx.runner)
-                implementation(libs.androidx.core)
-                implementation(libs.androidx.junit)
-            }
-        }
-
         iosMain {
             dependencies {
             }
@@ -90,13 +83,6 @@ kotlin {
         }
     }
     sourceSets.apply {
-//        if (jvm) {
-//            val jvmTest by getting {
-//                dependencies {
-//                    implementation(libs.requireLib("kotest-junit"))
-//                }
-//            }
-//        }
         all {
             languageSettings {
                 progressiveMode = true

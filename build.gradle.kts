@@ -1,12 +1,14 @@
 import nl.littlerobots.vcu.plugin.versionSelector
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradleSubplugin
 
 plugins {
     alias(libs.plugins.detekt)
-    alias(libs.plugins.kotest)
     alias(libs.plugins.kover)
     alias(libs.plugins.gradleDoctor)
     alias(libs.plugins.version.catalog.update)
 
+    alias(libs.plugins.kotest) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.kotlinxSerialization) apply false
@@ -22,6 +24,31 @@ plugins {
 allprojects {
     group = Config.artifactId
     version = Config.versionName
+}
+
+subprojects {
+    plugins.withType<ComposeCompilerGradleSubplugin>().configureEach {
+        the<ComposeCompilerGradlePluginExtension>().apply {
+            featureFlags.addAll(
+//                ComposeFeatureFlag.OptimizeNonSkippingGroups,
+//                ComposeFeatureFlag.StrongSkipping
+            )
+            stabilityConfigurationFiles =
+                listOf(rootProject.layout.projectDirectory.file("stability_definitions.txt"))
+            if (properties["enableComposeCompilerReports"] == "true") {
+                val metricsDir = layout.buildDirectory.dir("compose_metrics")
+                metricsDestination = metricsDir
+                reportsDestination = metricsDir
+            }
+        }
+    }
+    //noinspection WrongGradleMethod
+    tasks {
+        withType<Test>().configureEach {
+            useJUnitPlatform()
+            filter { isFailOnNoMatchingTests = true }
+        }
+    }
 }
 
 versionCatalogUpdate {

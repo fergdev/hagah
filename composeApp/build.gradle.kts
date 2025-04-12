@@ -10,11 +10,14 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 plugins {
     id(libs.plugins.kotlinMultiplatform.id)
     id(libs.plugins.androidApplication.id)
+    alias(libs.plugins.androidJunit5)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.aboutLibs)
     alias(libs.plugins.kover)
+    alias(libs.plugins.mokkery)
+    alias(libs.plugins.kotest)
 }
 
 @Language("Kotlin")
@@ -27,6 +30,7 @@ val buildConfig = """
         const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
         const val supportEmail = "${Config.supportEmail}"
         const val apiKey = "${localProperties().value.openApiKey()}"
+        const val mockData = "${localProperties().value.mockData()}"
     }
 """.trimIndent()
 
@@ -89,8 +93,7 @@ kotlin {
 
             @Suppress("OPT_IN_USAGE")
             compilerOptions {
-                //                languageVersion.set(KotlinVersion.KOTLIN_2_0)
-                freeCompilerArgs.addAll(Config.compilerArgs)
+                freeCompilerArgs.addAll(Config.jvmCompilerArgs)
             }
             all {
                 languageSettings {
@@ -131,8 +134,23 @@ kotlin {
                     implementation(libs.kstore)
 
                     implementation(libs.kotlinx.datetime)
+                    implementation(libs.coil.compose)
+                    implementation(libs.coil.svg)
+                    implementation(libs.haze)
+                    implementation(libs.haze.materials)
                 }
             }
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlin.coroutines.test)
+            implementation(libs.kotest)
+            implementation(libs.kotest.assertions.core)
+            implementation(libs.turbine)
+            implementation(libs.multiplatform.settings.test)
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
+            implementation(libs.koin.test)
         }
         androidMain {
             dependencies {
@@ -142,7 +160,15 @@ kotlin {
                 implementation(libs.koin.android)
                 implementation(libs.kstore.file)
                 implementation(libs.ktor.client.okhttp)
+                implementation(libs.androidx.media3.exoplayer)
+                implementation(libs.androidx.media3.ui)
             }
+        }
+        androidUnitTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.junit.api)
+            implementation(libs.junit.engine)
+            implementation(libs.kotest.junit)
         }
         iosMain {
             dependencies {
@@ -158,10 +184,18 @@ kotlin {
             implementation(libs.ktor.client.apache)
             implementation(libs.appdirs)
             implementation(libs.kstore.file)
+            implementation(libs.composemediaplayer)
+        }
+        val desktopTest by getting
+        desktopTest.dependencies {
+            implementation(libs.kotest.junit)
+            implementation(libs.koin.test)
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
             implementation(libs.kstore.storage)
+            implementation(libs.composemediaplayer)
+            implementation(libs.kotlinx.browser.wasm.js)
         }
     }
 }
@@ -174,6 +208,7 @@ android {
     namespace = Config.namespace
     buildFeatures {
         buildConfig = true
+        resValues = true
     }
     defaultConfig {
         minSdk = Config.minSdk
@@ -198,7 +233,7 @@ android {
         create("release") {
             with(localProperties().value) {
                 storePassword = storePassword()
-                storeFile = File(rootDir, Config.storeFilePath)
+                storeFile = File(keyStorePath())
                 keyPassword = keyPassword()
                 keyAlias = keyAlias()
             }
@@ -209,12 +244,7 @@ android {
             isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(
-                // Includes the default ProGuard rules files that are packaged with
-                // the Android Gradle plugin. To learn more, go to the section about
-                // R8 configuration files.
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-
-                // Includes a local, custom Proguard rules file
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
@@ -291,41 +321,34 @@ compose {
 tasks.withType<JavaExec>().named { it == "composeApp:desktopRun" }
     .configureEach { mainClass = Config.mainClass }
 
+junitPlatform {
+    instrumentationTests.enabled = false
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    testLogging {
+        showExceptions = true
+        showStandardStreams = true
+    }
+}
+
 aboutLibraries {
-    // - if the automatic registered android tasks are disabled, a similar thing can be achieved manually
-    // - `./gradlew app:exportLibraryDefinitions -PaboutLibraries.exportPath=src/main/res/raw`
-    // - the resulting file can for example be added as part of the SCM
-    // registerAndroidTasks = false
-
-    // Define the path configuration files are located in.
-    // E.g. additional libraries, licenses to add to the target .json
     configPath = "config"
-
-    // Allow to enable "offline mode", will disable any network check of the plugin
-    // (including [fetchRemoteLicense] or pulling spdx license texts)
     offlineMode = false
-    // enable fetching of "remote" licenses. Uses the GitHub API
     fetchRemoteLicense = true
-
-    // Full license text for license IDs mentioned here will be included, even if no detected dependency uses them.
-    // additionalLicenses = ["mit", "mpl_2_0"]
-
-    // Allows to exclude some fields from the generated meta data field.
-    // excludeFields = ["developers", "funding"]
-
-    // Define the strict mode, will fail if the project uses licenses not allowed
-    // - This will only automatically fail for Android projects which have `registerAndroidTasks` enabled
-    // For non Android projects, execute `exportLibraryDefinitions`
     strictMode = StrictMode.FAIL
-    // Allowed set of licenses, this project will be able to use without build failure
-    allowedLicenses = arrayOf("Apache-2.0", "MIT", "BSD-3-Clause", "ASDKL", "NOASSERTION")
-    // Allowed set of licenses for specific dependencies, this project will be able to use without build failure
+    allowedLicenses = arrayOf(
+        "Apache-2.0",
+        "MIT",
+        "BSD-3-Clause",
+        "ASDKL",
+        "NOASSERTION",
+        "GPL-2.0"
+    ) // TODO check last item
     allowedLicensesMap = mapOf(Pair("asdkl", listOf("androidx.jetpack.library")))
-    // Enable the duplication mode, allows to merge, or link dependencies which relate
     duplicationMode = DuplicateMode.MERGE
-    // Configure the duplication rule, to match "duplicates" with
     duplicationRule = DuplicateRule.SIMPLE
-    // Enable pretty printing for the generated JSON file
     prettyPrint = true
 }
 
@@ -341,8 +364,7 @@ kover {
         filters {
             excludes {
                 androidGeneratedClasses()
-                annotatedBy("com.timerx.util.KoverIgnore")
-                packages("timerx.shared.generated.resources")
+                packages("timerx.fergdev.hagah.generated.resources")
                 classes("*\$special$\$inlined\$map*")
                 classes("*$\$inlined\$singleOf*")
                 classes("*$\$inlined\$factoryOf\$default$*")

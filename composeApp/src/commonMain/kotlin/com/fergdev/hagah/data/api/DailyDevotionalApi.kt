@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import com.fergdev.hagah.BuildFlags
-import com.fergdev.hagah.data.DailyDevotional
+import com.fergdev.hagah.data.DailyHagah
 import com.fergdev.hagah.data.api.DailyDevotionalApi.DevotionalError
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
@@ -20,7 +20,7 @@ import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 
 interface DailyDevotionalApi {
-    suspend fun getData(): Flow<Either<DailyDevotional, DevotionalError>>
+    suspend fun getData(): Flow<Either<DailyHagah, DevotionalError>>
 
     sealed class DevotionalError {
         data class Network(val message: String) : DevotionalError()
@@ -39,7 +39,7 @@ class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalAp
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    override suspend fun getData(): Flow<Either<DailyDevotional, DevotionalError>> {
+    override suspend fun getData(): Flow<Either<DailyHagah, DevotionalError>> {
         try {
             val req = ChatGPTRequest(messages = listOf(Message(content = prompt)))
             val response = client.post(chatGptUrl) {
@@ -81,6 +81,5 @@ class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalAp
         } catch (ioException: IOException) {
             return flowOf(DevotionalError.Network(ioException.message ?: "IO exception").right())
         }
-//        return flowOf(DevotionalError.Other("Unknown error").right())
     }
 }

@@ -25,6 +25,10 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        maven("https://jitpack.io")
+        maven {
+            setUrl("https://jitpack.io")
+        }
     }
     versionCatalogs {
         create("fLibs") {

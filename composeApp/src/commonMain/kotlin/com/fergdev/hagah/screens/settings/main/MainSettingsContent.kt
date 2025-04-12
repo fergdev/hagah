@@ -1,43 +1,46 @@
 package com.fergdev.hagah.screens.settings.main
 
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.fergdev.hagah.ui.FIconButton
-import com.fergdev.hagah.ui.FTopAppBar
-import hagah.generated.resources.Res
-import hagah.generated.resources.settings
-import org.jetbrains.compose.resources.stringResource
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.fergdev.fcommon.ui.Spacer
+import com.fergdev.fcommon.ui.widgets.FiveWaySwipeableScreenScope
+import com.fergdev.fcommon.ui.widgets.NumberIncrement
+import com.fergdev.hagah.screens.settings.SettingsViewModel
+import org.koin.compose.koinInject
 
 @Composable
-fun MainSettingsContent(
-    onBack: () -> Unit,
-    onAbout: () -> Unit,
-) {
-    Scaffold(
-        topBar = {
-            FTopAppBar(
-                title = stringResource(Res.string.settings),
-                navigationIcon = {
-                    FIconButton(
-                        onClick = onBack,
-                        vector = Icons.AutoMirrored.Filled.ArrowBack,
-                    )
-                },
-            )
-        }
-    ) { padding ->
-        LazyColumn(contentPadding = padding) {
-            item {
-                Button(onClick = onAbout) {
-                    Text("About")
+internal fun FiveWaySwipeableScreenScope.SettingsContent(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier.padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        val vm = koinInject<SettingsViewModel>()
+        Column {
+            Text(text = "Settings")
+
+            val state by vm.state.collectAsState()
+            Row {
+                Text(text = "Meditation Length")
+                Spacer(modifier = Modifier.weight(1f))
+                NumberIncrement(
+                    value = state.meditationDuration,
+                    negativeIcon = Icons.Default.Delete,
+                    positiveIcon = Icons.Default.Add,
+                ) {
+                    vm.setMeditationDuration(it)
                 }
-            }
-            item {
             }
         }
     }

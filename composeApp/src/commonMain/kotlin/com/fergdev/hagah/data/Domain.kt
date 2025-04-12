@@ -1,13 +1,15 @@
 package com.fergdev.hagah.data
 
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DailyDevotional(
+data class DailyHagah(
+    @SerialName("index")
+    val id: Long,
     @SerialName("date")
-    val date: Instant,
+    val date: LocalDate,
     @SerialName("verse")
     val verse: Verse,
     @SerialName("reflection")

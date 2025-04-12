@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.fergdev.fcommon.ui.thenLet
 
 object Opacity {
     const val enabled = 1f
@@ -54,6 +55,3 @@ fun TCard(
         }
     }
 }
-inline fun <T> Modifier.thenLet(obj: T?, block: Modifier.(T) -> Modifier): Modifier =
-    if (obj != null) then(block(Modifier, obj))
-    else this
