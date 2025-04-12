@@ -2,7 +2,7 @@ package com.fergdev.hagah
 
 import android.app.Application
 import android.content.Context
-import com.fergdev.hagah.data.DailyDevotional
+import com.fergdev.hagah.data.DailyHagah
 import com.fergdev.hagah.data.storage.HagahDb
 import com.fergdev.hagah.di.startKoin
 import io.github.xxfast.kstore.KStore
@@ -26,9 +26,9 @@ class AndroidApplication : Application() {
 val androidModule = module {
     single {
         val context: Context = get()
-        storeOf<List<DailyDevotional>>(
+        storeOf<List<DailyHagah>>(
             codec = FileCodec(Path(context.filesDir.absolutePath, HagahDb)),
             default = emptyList()
         )
-    }.bind<KStore<List<DailyDevotional>>>()
+    }.bind<KStore<List<DailyHagah>>>()
 }

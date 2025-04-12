@@ -1,7 +1,7 @@
 package com.fergdev.hagah
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.fergdev.hagah.data.DailyDevotional
+import com.fergdev.hagah.data.DailyHagah
 import com.fergdev.hagah.data.storage.HagahDb
 import com.fergdev.hagah.di.startKoin
 import io.github.xxfast.kstore.file.FileCodec
@@ -25,7 +25,7 @@ private val desktopModule = module {
         )!!.path!!
 
         val file = Path(documentDirectory, HagahDb)
-        storeOf<List<DailyDevotional>>(
+        storeOf<List<DailyHagah>>(
             codec = FileCodec(file),
             default = emptyList()
         )

@@ -2,16 +2,18 @@
 
 package com.fergdev.hagah
 
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import ca.gosyer.appdirs.AppDirs
-import com.fergdev.hagah.data.DailyDevotional
+import com.fergdev.hagah.data.DailyHagah
 import com.fergdev.hagah.data.storage.HagahDb
 import com.fergdev.hagah.di.startKoin
 import io.github.xxfast.kstore.file.FileCodec
 import io.github.xxfast.kstore.storeOf
 import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
 import org.koin.dsl.module
 
 private val desktopModule = module {
@@ -22,8 +24,7 @@ private val desktopModule = module {
         )
 
         val file = Path(filesDir.getUserDataDir(), HagahDb)
-        SystemFileSystem.delete(file)
-        storeOf<List<DailyDevotional>>(
+        storeOf<List<DailyHagah>>(
             codec = FileCodec(file),
             default = emptyList()
         )
@@ -34,6 +35,10 @@ fun main() = application {
     startKoin(modules = listOf(desktopModule))
     Window(
         onCloseRequest = ::exitApplication,
+        undecorated = true,
+        resizable = true,
+        state = WindowState(size = DpSize(800.dp, 600.dp)),
+        transparent = false, // set to true if you want a transparent background
         title = BuildFlags.appName,
     ) {
         App()

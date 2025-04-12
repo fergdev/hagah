@@ -1,6 +1,7 @@
 package com.fergdev.hagah.data.api
 
-import com.fergdev.hagah.data.DailyDevotional
+import com.fergdev.fcommon.util.nowDate
+import com.fergdev.hagah.data.DailyHagah
 import com.fergdev.hagah.data.Verse
 import kotlinx.datetime.Clock
 import kotlinx.serialization.SerialName
@@ -32,8 +33,9 @@ data class VerseDto(
     val text: String
 )
 
-fun DailyDevotionalDto.toDomain() = DailyDevotional(
-    date = Clock.System.now(),
+fun DailyDevotionalDto.toDomain(index: Long = 0L) = DailyHagah(
+    id = index,
+    date = Clock.System.nowDate(),
     verse = verseDto.toDomain(),
     reflection = reflection,
     callToAction = callToAction,

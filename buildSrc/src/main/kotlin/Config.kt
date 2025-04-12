@@ -52,12 +52,13 @@ object Config {
         "kotlin.RequiresOptIn",
         "kotlin.experimental.ExperimentalTypeInference",
         "kotlin.contracts.ExperimentalContracts",
-        "org.jetbrains.compose.resources.ExperimentalResourceApi"
+        "org.jetbrains.compose.resources.ExperimentalResourceApi",
+        "com.russhwolf.settings.ExperimentalSettingsApi",
     )
     val compilerArgs = listOf(
         "-Xexpect-actual-classes",
         "-Xcontext-receivers",
-        "-Xconsistent-data-class-copy-visibility"
+        "-Xconsistent-data-class-copy-visibility",
     )
     val jvmCompilerArgs = buildList {
         addAll(compilerArgs)
@@ -71,8 +72,6 @@ object Config {
     val jvmTarget = JvmTarget.JVM_17
     val idePluginJvmTarget = JvmTarget.JVM_17
     val javaVersion = JavaVersion.VERSION_17
-
-    const val storeFilePath = "certificates/hagah.jks"
 
     object Detekt {
         const val CONFIG_FILE = "detekt.yml"
