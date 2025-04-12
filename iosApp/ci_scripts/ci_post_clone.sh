@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 root_dir=$CI_WORKSPACE_PATH
 repo_dir=$CI_PRIMARY_REPOSITORY_PATH
 jdk_dir="${CI_DERIVED_DATA_PATH}/JDK"
@@ -38,7 +38,9 @@ install_jdk_if_needed() {
     echo " - No valid JDK installation found, installing..."
     tar_name="jdk-${jdk_version}_${arch_type}_bin.tar.gz"
     # Download and un-tar JDK to our defined location.
-    curl -OL "https://download.oracle.com/java/20/archive/${tar_name}"
+    jdk_url="https://download.oracle.com/java/20/archive/${tar_name}"
+    echo "Downloading $jdk_url"
+    curl -OL jdk_url
     tar xzf $tar_name -C $root_dir
     # Move the JDK to our desired location.
     rm -rf $jdk_dir
@@ -60,7 +62,7 @@ add_keystore_properties() {
       echo "storePassword=123"
       echo "keyPassword=123"
       echo "keyAlias=123"
-      echo "openAiApiKey=123"
+      echo "openAiApiKey=$OPEN_AI_API_KEY"
     } >> "$KEYSTORE_PROPERTIES_PATH"
 }
 recover_cache_files
