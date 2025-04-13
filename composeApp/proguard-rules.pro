@@ -112,3 +112,4 @@
 
 -dontwarn org.slf4j.**
 -dontwarn io.github.oshai.kotlinlogging.logback.**
+-dontwarn com.oracle.svm.**

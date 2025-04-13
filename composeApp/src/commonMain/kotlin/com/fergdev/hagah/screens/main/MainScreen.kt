@@ -51,6 +51,7 @@ import com.fergdev.hagah.screens.main.SuccessCards.Meditation
 import com.fergdev.hagah.screens.main.SuccessCards.Prayer
 import com.fergdev.hagah.screens.main.SuccessCards.Reflection
 import com.fergdev.hagah.screens.main.SuccessCards.Verse
+import com.fergdev.hagah.screens.settings.main.timeFormatted
 import com.fergdev.hagah.ui.PulsingText
 import com.fergdev.hagah.ui.faze
 import dev.chrisbanes.haze.HazeProgressive
@@ -97,27 +98,18 @@ internal fun MeditationTimer(
     modifier: Modifier = Modifier,
     onFinish: () -> Unit = {}
 ) {
-    var timeLeftMillis by remember { mutableStateOf(totalTimeMillis) }
-    val progress by remember(timeLeftMillis) {
-        derivedStateOf { timeLeftMillis / totalTimeMillis.toFloat() }
+    var timeLeftSeconds by remember { mutableStateOf(totalTimeMillis) }
+    val progress by remember(timeLeftSeconds) {
+        derivedStateOf { timeLeftSeconds / totalTimeMillis.toFloat() }
     }
 
     // Countdown logic
     LaunchedEffect(Unit) {
-        while (timeLeftMillis > 0L) {
+        while (timeLeftSeconds > 0L) {
             delay(1000L)
-            timeLeftMillis -= 1000L
+            timeLeftSeconds -= 1L
         }
         onFinish()
-    }
-
-    // Format mm:ss
-    val formattedTime by remember(timeLeftMillis) {
-        derivedStateOf {
-            val minutes = timeLeftMillis / 1000L / 60L
-            val seconds = timeLeftMillis / 1000L % 60L
-            "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
-        }
     }
 
     val copy = MaterialTheme.colorScheme.scrim.copy(alpha = 0.2f)
@@ -149,7 +141,7 @@ internal fun MeditationTimer(
         }
 
         Text(
-            text = formattedTime,
+            text = timeLeftSeconds.timeFormatted(),
             color = Color.White,
             style = MaterialTheme.typography.headlineLarge
         )

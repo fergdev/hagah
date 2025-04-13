@@ -9,7 +9,7 @@ private const val Prefix = "App:"
 private const val KeySeenIntro = "${Prefix}SeenFirstIntro"
 
 private const val KeyMeditationDuration = "${Prefix}MeditationDuration"
-private const val DefaultMeditationDuration = 5L * 60L * 1000L
+private const val DefaultMeditationDuration = 5L * 60L
 
 internal interface AppSettingsManager {
     data class AppSettings(

@@ -5,7 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import com.fergdev.hagah.BuildFlags
 import com.fergdev.hagah.data.DailyHagah
-import com.fergdev.hagah.data.api.DailyDevotionalApi.DevotionalError
+import com.fergdev.hagah.data.api.DailyDevotionalApi.ApiError
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -20,11 +20,11 @@ import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 
 interface DailyDevotionalApi {
-    suspend fun getData(): Flow<Either<DailyHagah, DevotionalError>>
+    suspend fun getData(): Flow<Either<DailyHagah, ApiError>>
 
-    sealed class DevotionalError {
-        data class Network(val message: String) : DevotionalError()
-        data class Other(val cause: String) : DevotionalError()
+    sealed class ApiError {
+        data class Network(val message: String) : ApiError()
+        data class Other(val cause: String) : ApiError()
     }
 }
 
@@ -39,7 +39,7 @@ class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalAp
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    override suspend fun getData(): Flow<Either<DailyHagah, DevotionalError>> {
+    override suspend fun getData(): Flow<Either<DailyHagah, ApiError>> {
         try {
             val req = ChatGPTRequest(messages = listOf(Message(content = prompt)))
             val response = client.post(chatGptUrl) {
@@ -76,10 +76,16 @@ class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalAp
                 )
             } catch (t: IllegalArgumentException) {
                 Napier.e("Error parsing JSON", t, "Api")
-                return flowOf(DevotionalError.Network("Network Error").right())
+                return flowOf(ApiError.Network("Network Error").right())
             }
         } catch (ioException: IOException) {
-            return flowOf(DevotionalError.Network(ioException.message ?: "IO exception").right())
+            return flowOf(ApiError.Network(ioException.message ?: "IO exception").right())
+        } catch (illegalArgumentException: IllegalArgumentException) {
+            return flowOf(
+                ApiError.Other(
+                    illegalArgumentException.message ?: "illegal argument exception"
+                ).right()
+            )
         }
     }
 }
