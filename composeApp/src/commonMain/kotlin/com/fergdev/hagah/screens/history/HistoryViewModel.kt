@@ -13,6 +13,7 @@ import com.fergdev.hagah.data.DataRepository
 import com.fergdev.hagah.screens.history.HistoryDay.Blank
 import com.fergdev.hagah.screens.history.HistoryDay.Future
 import com.fergdev.hagah.screens.history.HistoryDay.HasHistory
+import io.github.aakira.napier.log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -60,6 +61,8 @@ internal sealed interface HistoryDay {
     data class NoHistory(override val dayOfMonth: Int) : HistoryDay
 }
 
+private const val LogTag = "HistoryViewModel"
+
 internal class HistoryViewModel(
     private val repository: DataRepository,
     private val clock: Clock,
@@ -72,14 +75,14 @@ internal class HistoryViewModel(
 
     init {
         launch {
+            log(tag = LogTag) { "Requesting history" }
             state.value = createHistory(repository.history().first<List<DailyHagah>>())
+            log(tag = LogTag) { "Finished requesting history" }
         }
     }
 
-    fun onViewHistory(day: HasHistory) {
-        launch {
-            repository.setDevotional(day.id)
-        }
+    fun onViewHistoryItem(day: HasHistory) {
+        launch { repository.setDevotional(day.id) }
     }
 
     private fun createHistory(history: List<DailyHagah>): HistoryState {

@@ -10,6 +10,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
+import com.fergdev.hagah.LocalHazeState
+import dev.chrisbanes.haze.hazeSource
 import io.github.aakira.napier.Napier
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -132,7 +134,7 @@ fun IosVideoPlayer(
 
             playerContainer
         },
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.hazeSource(LocalHazeState.current).fillMaxSize(),
         update = { _ ->
             Napier.d(message = "Update")
             queuePlayer.play()
