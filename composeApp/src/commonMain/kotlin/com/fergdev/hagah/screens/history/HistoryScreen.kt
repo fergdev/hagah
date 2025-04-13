@@ -30,7 +30,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.fergdev.fcommon.ui.Spacer
 import com.fergdev.fcommon.ui.conditional
+import com.fergdev.hagah.screens.history.HistoryDay.Blank
+import com.fergdev.hagah.screens.history.HistoryDay.Future
+import com.fergdev.hagah.screens.history.HistoryDay.HasHistory
+import com.fergdev.hagah.screens.history.HistoryDay.NoHistory
 import com.fergdev.hagah.ui.PulsingText
+import io.github.aakira.napier.log
 import kotlinx.datetime.DayOfWeek
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -44,7 +49,7 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
         when (state.value) {
             is HistoryState.Loaded -> LoadedHistory(
                 history = state.value as HistoryState.Loaded,
-                onViewHistory = viewModel::onViewHistory
+                onViewHistory = viewModel::onViewHistoryItem
             )
 
             HistoryState.Loading -> PulsingText("Loading History")
@@ -57,11 +62,12 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun LoadedHistory(
     history: HistoryState.Loaded,
-    onViewHistory: (HistoryDay.HasHistory) -> Unit
+    onViewHistory: (HasHistory) -> Unit
 ) {
+    log(tag = "HistoryScreen") { "Loaded history ${history.historyMonths.size}" }
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { history.historyMonths.size - 1 }
+        pageCount = { history.historyMonths.size }
     )
     HorizontalPager(
         modifier = Modifier.fillMaxSize(),
@@ -74,7 +80,7 @@ private fun LoadedHistory(
 }
 
 @Composable
-private fun HistoryMonthView(month: HistoryMonth, onViewHistory: (HistoryDay.HasHistory) -> Unit) {
+private fun HistoryMonthView(month: HistoryMonth, onViewHistory: (HasHistory) -> Unit) {
     Box(modifier = Modifier.padding(16.dp)) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -100,8 +106,8 @@ private fun HistoryDay.backGroundColor() = Color.White.copy(alpha = backGroundAl
 
 @Composable
 private fun HistoryDay.backGroundAlpha() = when (this) {
-    is HistoryDay.Future -> EmptyAlpha
-    is HistoryDay.HasHistory -> {
+    is Future -> EmptyAlpha
+    is HasHistory -> {
         val infiniteTransition = rememberInfiniteTransition(label = "Pulsing Text Transition")
         val alpha by infiniteTransition.animateFloat(
             initialValue = UnusedAlpha,
@@ -115,17 +121,17 @@ private fun HistoryDay.backGroundAlpha() = when (this) {
         alpha
     }
 
-    is HistoryDay.Blank -> 0f
-    is HistoryDay.NoHistory -> UnusedAlpha
+    is Blank -> 0f
+    is NoHistory -> UnusedAlpha
 }
 
 private fun HistoryDay.textColor() = Color.White.copy(alpha = textAlpha())
 
 private fun HistoryDay.textAlpha() = when (this) {
-    is HistoryDay.Future -> EmptyAlpha
-    is HistoryDay.HasHistory -> UsedAlpha
-    is HistoryDay.Blank -> 0f
-    is HistoryDay.NoHistory -> UnusedAlpha
+    is Future -> EmptyAlpha
+    is HasHistory -> UsedAlpha
+    is Blank -> 0f
+    is NoHistory -> UnusedAlpha
 }
 
 private val titles = DayOfWeek.entries.map { it.name.take(1) }
@@ -133,7 +139,7 @@ private val titles = DayOfWeek.entries.map { it.name.take(1) }
 @Composable
 private fun HistoryCalendarView(
     days: List<HistoryDay>,
-    onViewItem: (HistoryDay.HasHistory) -> Unit
+    onViewItem: (HasHistory) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(DaysPerWeek),
@@ -155,7 +161,7 @@ private fun HistoryCalendarView(
             Box(
                 modifier = Modifier.padding(4.dp)
                     .background(day.backGroundColor())
-                    .conditional<HistoryDay.HasHistory, _>(day) {
+                    .conditional<HasHistory, _>(day) {
                         clickable { onViewItem(it) }
                     },
                 contentAlignment = Center
