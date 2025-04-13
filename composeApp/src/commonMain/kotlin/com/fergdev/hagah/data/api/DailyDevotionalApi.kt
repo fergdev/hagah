@@ -80,6 +80,12 @@ class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalAp
             }
         } catch (ioException: IOException) {
             return flowOf(DevotionalError.Network(ioException.message ?: "IO exception").right())
+        } catch (illegalArgumentException: IllegalArgumentException) {
+            return flowOf(
+                DevotionalError.Other(
+                    illegalArgumentException.message ?: "illegal argument exception"
+                ).right()
+            )
         }
     }
 }
