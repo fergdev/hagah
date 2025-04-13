@@ -335,11 +335,10 @@ tasks.withType<Test> {
 }
 
 aboutLibraries {
-    configPath = "config"
     offlineMode = false
-    fetchRemoteLicense = true
-    strictMode = StrictMode.FAIL
-    allowedLicenses = arrayOf(
+    collect.fetchRemoteLicense = true
+    license.strictMode = StrictMode.FAIL
+    license.allowedLicenses.addAll(
         "Apache-2.0",
         "MIT",
         "BSD-3-Clause",
@@ -347,10 +346,10 @@ aboutLibraries {
         "NOASSERTION",
         "GPL-2.0"
     ) // TODO check last item
-    allowedLicensesMap = mapOf(Pair("asdkl", listOf("androidx.jetpack.library")))
-    duplicationMode = DuplicateMode.MERGE
-    duplicationRule = DuplicateRule.SIMPLE
-    prettyPrint = true
+    license.allowedLicensesMap = mapOf(Pair("asdkl", listOf("androidx.jetpack.library")))
+    library.duplicationMode = DuplicateMode.MERGE
+    library.duplicationRule = DuplicateRule.SIMPLE
+    export.prettyPrint = true
 }
 
 // Disable wasm tests for now

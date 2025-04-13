@@ -23,8 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.fergdev.hagah.ui.TCard
 import com.mikepenz.aboutlibraries.entity.Library
-import com.mikepenz.aboutlibraries.ui.compose.m3.rememberLibraries
-import com.mikepenz.aboutlibraries.ui.compose.m3.util.author
+import com.mikepenz.aboutlibraries.ui.compose.util.author
 import hagah.generated.resources.Res
 import io.github.aakira.napier.Napier
 import kotlinx.collections.immutable.persistentListOf
@@ -42,7 +41,7 @@ internal object FileLibsLoader : LibsLoader {
 
 @Composable
 internal fun AboutLibsContent(libsLoader: LibsLoader = FileLibsLoader) {
-    val libs = rememberLibraries { libsLoader.load() }
+    val libs = com.mikepenz.aboutlibraries.ui.compose.rememberLibraries { libsLoader.load() }
     val libraries = libs.value?.libraries ?: persistentListOf()
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp),

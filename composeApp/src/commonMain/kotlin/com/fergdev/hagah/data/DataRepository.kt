@@ -21,7 +21,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
 
 internal interface DataRepository {
-    suspend fun requestDailyDevotional(): Flow<Either<DailyHagah, DailyDevotionalApi.DevotionalError>>
+    suspend fun requestDailyDevotional(): Flow<Either<DailyHagah, DailyDevotionalApi.ApiError>>
     suspend fun history(): Flow<List<DailyHagah>>
     suspend fun setDevotional(id: Long)
     val lookBackDevotional: Flow<DailyHagah>
@@ -52,7 +52,7 @@ internal class DataRepositoryMockImpl : BaseDataRepository() {
     private val mockDelay = 3000L
     private val devotionals = generateMockList(100)
     override suspend fun history() = flowOf(devotionals)
-    override suspend fun requestDailyDevotional(): Flow<Either<DailyHagah, DailyDevotionalApi.DevotionalError>> {
+    override suspend fun requestDailyDevotional(): Flow<Either<DailyHagah, DailyDevotionalApi.ApiError>> {
         delay(mockDelay)
         return flowOf(generateRandomDailyDevotional().left())
     }

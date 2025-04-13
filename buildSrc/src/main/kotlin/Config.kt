@@ -24,7 +24,7 @@ object Config {
 
     // Android
     const val namespace = artifactId
-    const val compileSdk = 35
+    const val compileSdk = 36
     const val targetSdk = compileSdk
     const val minSdk = 21
 

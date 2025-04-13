@@ -10,6 +10,7 @@ import com.fergdev.hagah.AppSettingsManager
 import com.fergdev.hagah.data.DailyHagah
 import com.fergdev.hagah.data.DataRepository
 import com.fergdev.hagah.data.api.DailyDevotionalApi
+import com.fergdev.hagah.screens.main.MainViewModel.MainScreenState.Loading
 import com.fergdev.hagah.screens.main.MainViewModel.MainScreenState.Success
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -35,7 +36,7 @@ internal class MainViewModel(
         ) : MainScreenState
     }
 
-    val state = MutableStateFlow<MainScreenState>(MainScreenState.Loading)
+    val state = MutableStateFlow<MainScreenState>(Loading)
 
     init {
         request()
@@ -61,7 +62,7 @@ internal class MainViewModel(
 
     private fun request() {
         viewModelScope.launch {
-            state.update { MainScreenState.Loading }
+            state.update { Loading }
 
             dataRepository.requestDailyDevotional().first { today ->
                 val meditationLength = appSettings.settings.first().meditationLength
@@ -69,10 +70,10 @@ internal class MainViewModel(
                 val loaded = when (today) {
                     is Either.Left -> Success(title, today.value, meditationLength)
                     is Either.Right -> when (today.value) {
-                        is DailyDevotionalApi.DevotionalError.Network ->
+                        is DailyDevotionalApi.ApiError.Network ->
                             MainScreenState.Error("Network Error, please check your connection.")
 
-                        is DailyDevotionalApi.DevotionalError.Other ->
+                        is DailyDevotionalApi.ApiError.Other ->
                             MainScreenState.Error("Unknown error, please try again.")
                     }
                 }
