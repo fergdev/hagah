@@ -258,6 +258,7 @@ exceptions:
     allowedExceptionNameRegex: '_|(ignored|expected).*'
   TooGenericExceptionThrown:
     active: true
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**',  '**.kts', '**/kotestTest/**' ]
     exceptionNames:
       - 'Error'
       - 'Exception'
@@ -306,6 +307,7 @@ formatting:
     active: false # duplicated by formatting
     maxLineLength: 120
     ignoreBackTickedIdentifier: true
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**',  '**.kts', '**/kotestTest/**', '**/androidHostTest/**', '**/androidDeviceTest/**' ]
   ModifierOrdering:
     active: true
     autoCorrect: true
@@ -701,6 +703,7 @@ style:
     excludePackageStatements: true
     excludeImportStatements: true
     excludeCommentStatements: true
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**',  '**.kts', '**/kotestTest/**', '**/androidHostTest/**', '**/androidDeviceTest/**' ]
   MayBeConst:
     active: true
   ModifierOrder:

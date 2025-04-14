@@ -1,17 +1,19 @@
 package com.fergdev.hagah.data
 
 import arrow.core.Either
-import arrow.core.left
+import arrow.core.right
+import com.fergdev.fcommon.util.nowDate
+import com.fergdev.hagah.data.DataRepository.Error
+import com.fergdev.hagah.data.DataRepository.Error.NotFound
 import com.fergdev.hagah.data.MockHagah.generateMockList
-import com.fergdev.hagah.data.MockHagah.generateRandomDailyDevotional
 import com.fergdev.hagah.data.api.DailyDevotionalApi
+import com.fergdev.hagah.data.api.toDomain
 import com.fergdev.hagah.data.storage.DailyDevotionalStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit.Companion.DAY
 import kotlinx.datetime.LocalDate
@@ -21,40 +23,63 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
 
 internal interface DataRepository {
-    suspend fun requestDailyDevotional(): Flow<Either<DailyHagah, DailyDevotionalApi.ApiError>>
-    suspend fun history(): Flow<List<DailyHagah>>
-    suspend fun setDevotional(id: Long)
-    val lookBackDevotional: Flow<DailyHagah>
-}
-
-internal abstract class BaseDataRepository : DataRepository {
-    private val _lookBackDevotional = MutableSharedFlow<DailyHagah>()
-    override val lookBackDevotional = _lookBackDevotional
-    override suspend fun setDevotional(id: Long) {
-        _lookBackDevotional.emit(history().first().first { it.id == id })
+    sealed interface Error {
+        data object NotFound : Error
+        data object Network : Error
+        data object Server : Error
     }
+
+    suspend fun requestDailyHagah(): Either<Error, DailyHagah>
+    suspend fun history(): Flow<List<DailyHagah>>
+    suspend fun setLookBackHagah(id: Long)
+    val lookBackHagah: Flow<Either<Error, DailyHagah>>
 }
 
 internal class DataRepositoryImpl(
     private val dailyDevotionalApi: DailyDevotionalApi,
-    private val dailyDevotionalStorage: DailyDevotionalStorage
-) : BaseDataRepository() {
+    private val dailyDevotionalStorage: DailyDevotionalStorage,
+    private val clock: Clock
+) : DataRepository {
+    private val _lookBackDevotional = MutableSharedFlow<Either<NotFound, DailyHagah>>()
+    override val lookBackHagah = _lookBackDevotional
+
     override suspend fun history() = dailyDevotionalStorage.history()
-    override suspend fun requestDailyDevotional() =
-        this.dailyDevotionalApi.getData().onEach { either ->
-            either.onLeft {
-                dailyDevotionalStorage.addDevotional(it)
-            }
-        }
+
+    override suspend fun setLookBackHagah(id: Long) {
+        _lookBackDevotional.emit(
+            dailyDevotionalStorage.getHagah(id).mapLeft { NotFound }
+        )
+    }
+
+    override suspend fun requestDailyHagah() =
+        dailyDevotionalStorage.history()
+            .first()
+            .firstOrNull { it.date == clock.nowDate() }
+            ?.right()
+            ?: dailyDevotionalApi.requestHagah()
+                .map { it.toDomain() }
+                .onRight { dailyDevotionalStorage.addDevotional(it) }
+                .mapLeft {
+                    when (it) {
+                        is DailyDevotionalApi.Error.Server -> Error.Server
+                        is DailyDevotionalApi.Error.Network -> Error.Network
+                    }
+                }
 }
 
-internal class DataRepositoryMockImpl : BaseDataRepository() {
+internal class DataRepositoryMockImpl : DataRepository {
+    private val _lookBackDevotional = MutableSharedFlow<Either<NotFound, DailyHagah>>()
+    override val lookBackHagah = _lookBackDevotional
     private val mockDelay = 3000L
     private val devotionals = generateMockList(100)
     override suspend fun history() = flowOf(devotionals)
-    override suspend fun requestDailyDevotional(): Flow<Either<DailyHagah, DailyDevotionalApi.ApiError>> {
+    override suspend fun setLookBackHagah(id: Long) {
+        _lookBackDevotional.emit(devotionals.first { it.id == id }.right())
+    }
+
+    override suspend fun requestDailyHagah(): Either<Error, DailyHagah> {
         delay(mockDelay)
-        return flowOf(generateRandomDailyDevotional().left())
+        return devotionals.first().right()
     }
 }
 
@@ -71,7 +96,7 @@ private object MockHagah {
             verse = generateRandomVerse(),
             reflection = generateRandomReflection(),
             callToAction = generateRandomCallToAction(),
-            prayer = generateRandomPrayer()
+            prayer = generateRandomPrayer(),
         )
 
     private val books = listOf(

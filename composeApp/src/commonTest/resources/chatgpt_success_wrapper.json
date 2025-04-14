@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-BM4ItuMPhIGlBFnN11ySRqHIt7Bes",
+  "object": "chat.completion",
+  "created": 1744599459,
+  "model": "gpt-4-0613",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\n \"dailyDevotional\": { \"verse\": {\n    \"reference\": \"John 13:34\",\n    \"text\": \"A new command I give you: Love one another. As I have loved you, so you must love one another.\"\n  },\n  \"reflection\": \"In today's verse, Jesus gives us one of the most profound commandments - to love one another just as He loved us. Love is such a powerful force, it can heal, transform, and bring about the most awe-inspiring changes. Yet in the world today, we often find it hard to genuinely love our neighbours. Let's use today as an opportunity to reflect on how we can grow in love and bring Jesus's commandment to life in our actions.\",\n  \"callToAction\": \"Take a moment to consider the people around you. Could be your family, your friends, your colleagues or even strangers you pass on the street. Engage in a deliberate act of kindness today, it could be as simple as a smile, a kind word or a selfless act of service. By doing so, you are loving others as Christ loved you.\",\n  \"prayer\": \"Lord Jesus, thank You for Your great love for us. Help us to understand and appreciate that love so that we may extend it to those around us. Grant us a kind and compassionate heart, that we may look past differences and embrace everyone with open arms. Teach us to love as You have loved us. Amen.\"\n}}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 53,
+    "completion_tokens": 298,
+    "total_tokens": 351,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": null
+}

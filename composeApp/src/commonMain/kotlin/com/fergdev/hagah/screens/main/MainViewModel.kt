@@ -1,59 +1,59 @@
 package com.fergdev.hagah.screens.main
 
 import androidx.compose.runtime.Stable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import com.fergdev.fcommon.util.formatToDayMonthAndYear
-import com.fergdev.fcommon.util.nowDate
 import com.fergdev.hagah.AppSettingsManager
+import com.fergdev.hagah.FViewModel
 import com.fergdev.hagah.data.DailyHagah
 import com.fergdev.hagah.data.DataRepository
-import com.fergdev.hagah.data.api.DailyDevotionalApi
-import com.fergdev.hagah.screens.main.MainViewModel.MainScreenState.Loading
-import com.fergdev.hagah.screens.main.MainViewModel.MainScreenState.Success
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.fergdev.hagah.screens.main.MainViewModel.State.Error
+import com.fergdev.hagah.screens.main.MainViewModel.State.Loading
+import com.fergdev.hagah.screens.main.MainViewModel.State.Success
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
+import kotlinx.coroutines.flow.merge
 
 internal class MainViewModel(
     private val dataRepository: DataRepository,
-    private val appSettings: AppSettingsManager
-) :
-    ViewModel() {
-    sealed interface MainScreenState {
-        data object Loading : MainScreenState
-        data class Error(val message: String) : MainScreenState
+    private val appSettings: AppSettingsManager,
+    dispatcher: CoroutineDispatcher = Dispatchers.Main
+) : FViewModel<MainViewModel.State, Nothing>(Loading, dispatcher) {
+    sealed interface State {
+        data object Loading : State
+        data class Error(val message: String) : State
 
         @Stable
         data class Success(
-            val today: String,
+            val date: String,
             val dailyHagah: DailyHagah,
             val meditationTime: Long
-        ) : MainScreenState
+        ) : State
     }
 
-    val state = MutableStateFlow<MainScreenState>(Loading)
+    private val currentHagahFlow = MutableSharedFlow<Either<DataRepository.Error, DailyHagah>>()
 
     init {
-        request()
-        viewModelScope.launch {
+        launch {
             combine(
                 appSettings.settings,
-                dataRepository.lookBackDevotional
-            ) { settings, lookBack ->
-                Success(
-                    today = lookBack.date.formatToDayMonthAndYear(),
-                    dailyHagah = lookBack,
-                    meditationTime = settings.meditationLength
+                merge(currentHagahFlow, dataRepository.lookBackHagah)
+            ) { settings, dailyHagahEither ->
+                dailyHagahEither.fold<State>(
+                    ifLeft = { it.mapRepositoryError() },
+                    ifRight = { dailyHagah ->
+                        Success(
+                            date = dailyHagah.date.formatToDayMonthAndYear(),
+                            dailyHagah = dailyHagah,
+                            meditationTime = settings.meditationLength
+                        )
+                    }
                 )
-            }.collect {
-                state.update { it }
-            }
+            }.collect { updateState { it } }
         }
+        request()
     }
 
     fun retry() {
@@ -61,25 +61,15 @@ internal class MainViewModel(
     }
 
     private fun request() {
-        viewModelScope.launch {
-            state.update { Loading }
-
-            dataRepository.requestDailyDevotional().first { today ->
-                val meditationLength = appSettings.settings.first().meditationLength
-                val title = Clock.System.nowDate().formatToDayMonthAndYear()
-                val loaded = when (today) {
-                    is Either.Left -> Success(title, today.value, meditationLength)
-                    is Either.Right -> when (today.value) {
-                        is DailyDevotionalApi.ApiError.Network ->
-                            MainScreenState.Error("Network Error, please check your connection.")
-
-                        is DailyDevotionalApi.ApiError.Other ->
-                            MainScreenState.Error("Unknown error, please try again.")
-                    }
-                }
-                state.value = loaded
-                true
-            }
+        launch {
+            updateState { Loading }
+            currentHagahFlow.emit(dataRepository.requestDailyHagah())
         }
+    }
+
+    private fun DataRepository.Error.mapRepositoryError() = when (this) {
+        is DataRepository.Error.Server -> Error("We can't get your data right now, please try again.")
+        is DataRepository.Error.Network -> Error("There was a network connection issue")
+        is DataRepository.Error.NotFound -> Error("We could not find that Haga in your history.")
     }
 }
