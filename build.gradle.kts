@@ -1,6 +1,7 @@
 import nl.littlerobots.vcu.plugin.versionSelector
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradlePluginExtension
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeCompilerGradleSubplugin
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 
 plugins {
     alias(libs.plugins.detekt)
@@ -12,7 +13,6 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.kotlinxSerialization) apply false
-    alias(libs.plugins.aboutLibs) apply false
 
 //    Applied by convention
 //    alias(libs.plugins.androidApplication) apply false
@@ -29,12 +29,7 @@ allprojects {
 subprojects {
     plugins.withType<ComposeCompilerGradleSubplugin>().configureEach {
         the<ComposeCompilerGradlePluginExtension>().apply {
-            featureFlags.addAll(
-//                ComposeFeatureFlag.OptimizeNonSkippingGroups,
-//                ComposeFeatureFlag.StrongSkipping
-            )
-            stabilityConfigurationFiles =
-                listOf(rootProject.layout.projectDirectory.file("stability_definitions.txt"))
+            featureFlags.addAll(ComposeFeatureFlag.OptimizeNonSkippingGroups)
             if (properties["enableComposeCompilerReports"] == "true") {
                 val metricsDir = layout.buildDirectory.dir("compose_metrics")
                 metricsDestination = metricsDir
@@ -54,15 +49,12 @@ subprojects {
 versionCatalogUpdate {
     sortByKey = true
     versionSelector { stabilityLevel(it.candidate.version) >= Config.minStabilityLevel }
-//    keep {
-//        keepUnusedVersions = true
-//        keepUnusedLibraries = true
-//        keepUnusedPlugins = true
-//    }
+    keep {
+        keepUnusedVersions = true
+    }
 }
 doctor {
     disallowMultipleDaemons.set(false)
-    downloadSpeedWarningThreshold.set(.5f)
     GCWarningThreshold.set(0.10f)
     GCFailThreshold = 0.9f
     failOnEmptyDirectories.set(true)
@@ -72,9 +64,8 @@ doctor {
     disallowCleanTaskDependencies.set(true)
     warnIfKotlinCompileDaemonFallback.set(true)
     javaHome {
-        // TODO set these back to true
-        ensureJavaHomeMatches.set(false)
-        ensureJavaHomeIsSet.set(false)
+        ensureJavaHomeMatches.set(true)
+        ensureJavaHomeIsSet.set(true)
         failOnError.set(true)
     }
 }

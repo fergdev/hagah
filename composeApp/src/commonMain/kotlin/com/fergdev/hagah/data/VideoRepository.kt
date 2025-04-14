@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import kotlin.coroutines.EmptyCoroutineContext
 
 internal interface VideoRepository {
@@ -26,6 +27,7 @@ private const val KeyPrefix = "VideoManger"
 private const val KeyCurrentVideo = "$KeyPrefix:currentVideo"
 
 internal class VideoRepositoryMock(private val settings: FlowSettings) : VideoRepository {
+    @OptIn(ExperimentalResourceApi::class)
     private val testVideos: List<VideoInfo> = listOf(
         VideoInfo(
             id = "0",

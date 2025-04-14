@@ -52,9 +52,12 @@ object Config {
         "kotlin.RequiresOptIn",
         "kotlin.experimental.ExperimentalTypeInference",
         "kotlin.contracts.ExperimentalContracts",
-        "org.jetbrains.compose.resources.ExperimentalResourceApi",
-        "com.russhwolf.settings.ExperimentalSettingsApi",
     )
+    val appOptIns = buildList {
+        addAll(optIns)
+        add("org.jetbrains.compose.resources.ExperimentalResourceApi")
+        add("com.russhwolf.settings.ExperimentalSettingsApi")
+    }
     val compilerArgs = listOf(
         "-Xexpect-actual-classes",
         "-Xcontext-receivers",
