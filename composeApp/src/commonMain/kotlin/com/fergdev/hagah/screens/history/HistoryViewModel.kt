@@ -1,25 +1,21 @@
 package com.fergdev.hagah.screens.history
 
 import androidx.compose.runtime.Stable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.fergdev.fcommon.util.endOfMonth
 import com.fergdev.fcommon.util.endOfWeek
 import com.fergdev.fcommon.util.formatToMonthAndYear
 import com.fergdev.fcommon.util.nowDate
 import com.fergdev.fcommon.util.startOfMonth
+import com.fergdev.hagah.FViewModel
 import com.fergdev.hagah.data.DailyHagah
 import com.fergdev.hagah.data.DataRepository
 import com.fergdev.hagah.screens.history.HistoryDay.Blank
 import com.fergdev.hagah.screens.history.HistoryDay.Future
 import com.fergdev.hagah.screens.history.HistoryDay.HasHistory
-import io.github.aakira.napier.log
+import com.fergdev.hagah.screens.history.HistoryDay.NoHistory
+import com.fergdev.hagah.screens.history.HistoryState.Loaded
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.minus
@@ -61,28 +57,26 @@ internal sealed interface HistoryDay {
     data class NoHistory(override val dayOfMonth: Int) : HistoryDay
 }
 
-private const val LogTag = "HistoryViewModel"
-
 internal class HistoryViewModel(
     private val repository: DataRepository,
     private val clock: Clock,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
-) : ViewModel() {
-    val state = MutableStateFlow<HistoryState>(HistoryState.Loading)
-
-    inline fun launch(crossinline block: suspend CoroutineScope.() -> Unit) =
-        viewModelScope.launch(dispatcher) { block() }
-
+    dispatcher: CoroutineDispatcher = Dispatchers.Main
+) : FViewModel<HistoryState, Nothing>(
+    initialState = HistoryState.Loading,
+    dispatcher = dispatcher
+) {
     init {
         launch {
-            log(tag = LogTag) { "Requesting history" }
-            state.value = createHistory(repository.history().first<List<DailyHagah>>())
-            log(tag = LogTag) { "Finished requesting history" }
+            repository
+                .history()
+                .collect { history ->
+                    updateState { createHistory(history) }
+                }
         }
     }
 
     fun onViewHistoryItem(day: HasHistory) {
-        launch { repository.setDevotional(day.id) }
+        launch { repository.setLookBackHagah(day.id) }
     }
 
     private fun createHistory(history: List<DailyHagah>): HistoryState {
@@ -92,7 +86,7 @@ internal class HistoryViewModel(
         val sortedHistory = history.sortedByDescending { it.date }
         var dateIndex = clock.nowDate()
         val lastDate = sortedHistory.last().date
-        val uiList = mutableListOf<HistoryMonth>()
+        val historyMonths = mutableListOf<HistoryMonth>()
 
         while (dateIndex >= lastDate) {
             val monthDays = mutableListOf<HistoryDay>()
@@ -106,7 +100,7 @@ internal class HistoryViewModel(
                     val historyItem = sortedHistory.firstOrNull { monthIndex == it.date }
                     monthDays.add(
                         when (historyItem) {
-                            null -> HistoryDay.NoHistory(monthIndex.dayOfMonth)
+                            null -> NoHistory(dayOfMonth = monthIndex.dayOfMonth)
                             else -> {
                                 HasHistory(
                                     dayOfMonth = monthIndex.dayOfMonth,
@@ -127,7 +121,7 @@ internal class HistoryViewModel(
                 endOfWeekIndex = endOfWeekIndex.minus(1, DateTimeUnit.DAY)
             }
 
-            uiList.add(
+            historyMonths.add(
                 HistoryMonth(
                     title = dateIndex.formatToMonthAndYear(),
                     list = monthDays.reversed()
@@ -135,6 +129,6 @@ internal class HistoryViewModel(
             )
             dateIndex = dateIndex.startOfMonth().minus(1, DateTimeUnit.DAY)
         }
-        return HistoryState.Loaded(uiList)
+        return Loaded(historyMonths = historyMonths)
     }
 }

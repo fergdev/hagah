@@ -10,22 +10,22 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.coroutines.EmptyCoroutineContext
 
-interface VideoRepository {
+internal interface VideoRepository {
     val currentVideo: Flow<VideoInfo>
     val availableVideos: StateFlow<List<VideoInfo>>
     fun setVideo(video: VideoInfo)
 }
 
-data class VideoInfo(
+internal data class VideoInfo(
     val uri: String,
     val name: String,
     val id: String,
 )
 
-private const val Prefix = "VideoManger"
-private const val CurrentVideo = "$Prefix:currentVideo"
+private const val KeyPrefix = "VideoManger"
+private const val KeyCurrentVideo = "$KeyPrefix:currentVideo"
 
-class VideoRepositoryMock(private val settings: FlowSettings) : VideoRepository {
+internal class VideoRepositoryMock(private val settings: FlowSettings) : VideoRepository {
     private val testVideos: List<VideoInfo> = listOf(
         VideoInfo(
             id = "0",
@@ -53,12 +53,12 @@ class VideoRepositoryMock(private val settings: FlowSettings) : VideoRepository 
             name = "Lake",
         ),
     )
-    val scope = CoroutineScope(EmptyCoroutineContext)
+    private val scope = CoroutineScope(EmptyCoroutineContext)
 
-    private val _currentVideo = settings.getStringOrNullFlow(CurrentVideo).map { id ->
-        val video = testVideos.find { it.id == id } ?: testVideos.first()
-        return@map video
-    }
+    private val _currentVideo = settings.getStringOrNullFlow(KeyCurrentVideo)
+        .map { settingsVideoId ->
+            testVideos.find { it.id == settingsVideoId } ?: testVideos.first()
+        }
 
     override val currentVideo: Flow<VideoInfo> = _currentVideo
 
@@ -66,6 +66,6 @@ class VideoRepositoryMock(private val settings: FlowSettings) : VideoRepository 
     override val availableVideos: StateFlow<List<VideoInfo>> = _availableVideos
 
     override fun setVideo(video: VideoInfo) {
-        scope.launch { settings.putString(CurrentVideo, video.id) }
+        scope.launch { settings.putString(KeyCurrentVideo, video.id) }
     }
 }

@@ -8,13 +8,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class DailyDevotionalWrapper(
+internal data class DailyDevotionalWrapper(
     @SerialName("dailyDevotional")
     val dailyDevotionalDto: DailyDevotionalDto
 )
 
 @Serializable
-data class DailyDevotionalDto(
+internal data class DailyDevotionalDto(
     @SerialName("verse")
     val verseDto: VerseDto,
     @SerialName("reflection")
@@ -26,23 +26,23 @@ data class DailyDevotionalDto(
 )
 
 @Serializable
-data class VerseDto(
+internal data class VerseDto(
     @SerialName("reference")
     val reference: String,
     @SerialName("text")
     val text: String
 )
 
-fun DailyDevotionalDto.toDomain(index: Long = 0L) = DailyHagah(
+internal fun DailyDevotionalDto.toDomain(index: Long = 0L) = DailyHagah(
     id = index,
     date = Clock.System.nowDate(),
     verse = verseDto.toDomain(),
     reflection = reflection,
     callToAction = callToAction,
-    prayer = prayer
+    prayer = prayer,
 )
 
-fun VerseDto.toDomain() = Verse(
+internal fun VerseDto.toDomain() = Verse(
     reference = reference,
     text = text
 )
