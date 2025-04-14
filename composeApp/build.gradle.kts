@@ -142,26 +142,27 @@ kotlin {
             }
         }
         commonTest.dependencies {
-            implementation(libs.kotlin.test)
-            implementation(libs.kotlin.coroutines.test)
-            implementation(libs.kotest)
-            implementation(libs.kotest.assertions.core)
-            implementation(libs.turbine)
-            implementation(libs.multiplatform.settings.test)
             @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
             implementation(compose.uiTest)
             implementation(libs.koin.test)
+            implementation(libs.kotest)
+            implementation(libs.kotest.assertions.core)
+            implementation(libs.kotlin.coroutines.test)
+            implementation(libs.kotlin.test)
+            implementation(libs.ktor.client.mock)
+            implementation(libs.multiplatform.settings.test)
+            implementation(libs.turbine)
         }
         androidMain {
             dependencies {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.compose.ui.tooling.preview)
                 implementation(libs.androidx.foundation.layout.android)
+                implementation(libs.androidx.media3.exoplayer)
+                implementation(libs.androidx.media3.ui)
                 implementation(libs.koin.android)
                 implementation(libs.kstore.file)
                 implementation(libs.ktor.client.okhttp)
-                implementation(libs.androidx.media3.exoplayer)
-                implementation(libs.androidx.media3.ui)
             }
         }
         androidUnitTest.dependencies {
@@ -185,6 +186,7 @@ kotlin {
             implementation(libs.appdirs)
             implementation(libs.kstore.file)
             implementation(libs.composemediaplayer)
+            implementation(libs.slf4j.nop)
         }
         val desktopTest by getting
         desktopTest.dependencies {
@@ -265,7 +267,7 @@ compose {
         packageOfResClass = Config.packageOfResClass
         publicResClass = true
     }
-    android { }
+    android {}
     web { }
     desktop {
         application {
@@ -355,6 +357,20 @@ aboutLibraries {
 // Disable wasm tests for now
 tasks.named("wasmJsBrowserTest") {
     enabled = false
+}
+
+tasks.register<Copy>("copyiOSTestResources") {
+    from("src/commonTest/resources")
+    into("build/bin/iosX64/debugTest/resources")
+}
+
+listOf("iosX64Test", "iosSimulatorArm64Test").forEach { name ->
+    tasks.named(name).configure {
+        copy {
+            from("src/commonTest/resources")
+            into("build/bin/${name.removeSuffix("Test")}/debugTest/resources")
+        }
+    }
 }
 
 kover {

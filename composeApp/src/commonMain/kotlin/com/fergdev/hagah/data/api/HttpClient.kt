@@ -11,20 +11,16 @@ import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-private class KtorLogger : Logger {
-    override fun log(message: String) {
-        Napier.v(message = message, tag = "Ktor")
-    }
-}
-
 private const val HTTP_TIMEOUT = 60_000L
-private val json = Json {
-    ignoreUnknownKeys = true
-    encodeDefaults = true
-}
 internal val httpClient: HttpClient = HttpClient {
     install(ContentNegotiation) {
-        json(json = json, contentType = ContentType.Any)
+        json(
+            json = Json {
+                ignoreUnknownKeys = true
+                encodeDefaults = true
+            },
+            contentType = ContentType.Any
+        )
     }
     install(HttpTimeout) {
         requestTimeoutMillis = HTTP_TIMEOUT
@@ -32,6 +28,10 @@ internal val httpClient: HttpClient = HttpClient {
     }
     install(Logging) {
         level = LogLevel.ALL
-        logger = KtorLogger()
+        logger = object : Logger {
+            override fun log(message: String) {
+                Napier.v(message = message, tag = "Ktor")
+            }
+        }
     }
 }

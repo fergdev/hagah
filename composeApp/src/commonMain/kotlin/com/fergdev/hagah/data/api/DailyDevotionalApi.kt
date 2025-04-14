@@ -1,11 +1,11 @@
 package com.fergdev.hagah.data.api
 
 import arrow.core.Either
-import arrow.core.left
-import arrow.core.right
+import arrow.core.flatMap
 import com.fergdev.hagah.BuildFlags
-import com.fergdev.hagah.data.DailyHagah
-import com.fergdev.hagah.data.api.DailyDevotionalApi.ApiError
+import com.fergdev.hagah.data.api.DailyDevotionalApi.Error.Network
+import com.fergdev.hagah.data.api.DailyDevotionalApi.Error.Server
+import com.fergdev.hagah.flatMapLeft
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -14,21 +14,21 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 
-interface DailyDevotionalApi {
-    suspend fun getData(): Flow<Either<DailyHagah, ApiError>>
-
-    sealed class ApiError {
-        data class Network(val message: String) : ApiError()
-        data class Other(val cause: String) : ApiError()
+internal interface DailyDevotionalApi {
+    suspend fun requestHagah(): Either<Error, DailyDevotionalDto>
+    sealed class Error {
+        data object Network : Error()
+        data object Server : Error()
     }
 }
 
-class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalApi {
+private const val AUTHORIZATION = "Authorization"
+private const val LogTag = "API"
+
+internal class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalApi {
     private val chatGptUrl = "https://api.openai.com/v1/chat/completions"
 
     private val prompt = """
@@ -39,53 +39,34 @@ class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalAp
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    override suspend fun getData(): Flow<Either<DailyHagah, ApiError>> {
-        try {
-            val req = ChatGPTRequest(messages = listOf(Message(content = prompt)))
-            val response = client.post(chatGptUrl) {
-                headers {
-                    append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                    append(
-                        "Authorization",
-                        BuildFlags.apiKey
-                    )
-                }
-                setBody(req)
+    private suspend fun requestData(): String {
+        val req = ChatGPTRequest(messages = listOf(Message(content = prompt)))
+        val response = client.post(chatGptUrl) {
+            headers {
+                append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                append(AUTHORIZATION, BuildFlags.apiKey)
             }
-            val body = response.body<String>()
-            val firstChoice = json.decodeFromString<ChatGPTResponse>(body).choices.first()
-            try {
-                return flowOf(
-                    json
-                        .decodeFromString<DailyDevotionalDto>(firstChoice.message.content)
-                        .toDomain()
-                        .left()
-                )
-            } catch (t: IllegalArgumentException) {
-                Napier.e("Error parsing JSON", t, "Api")
-            }
-            try {
-                return flowOf(
-                    json
-                        .decodeFromString<DailyDevotionalWrapper>(
-                            firstChoice.message.content
-                        )
-                        .dailyDevotionalDto
-                        .toDomain()
-                        .left()
-                )
-            } catch (t: IllegalArgumentException) {
-                Napier.e("Error parsing JSON", t, "Api")
-                return flowOf(ApiError.Network("Network Error").right())
-            }
-        } catch (ioException: IOException) {
-            return flowOf(ApiError.Network(ioException.message ?: "IO exception").right())
-        } catch (illegalArgumentException: IllegalArgumentException) {
-            return flowOf(
-                ApiError.Other(
-                    illegalArgumentException.message ?: "illegal argument exception"
-                ).right()
-            )
+            setBody(req)
         }
+        return response.body<ChatGPTResponse>().choices.first().message.content
     }
+
+    override suspend fun requestHagah() =
+        Either.catch { requestData() }
+            .flatMap { content ->
+                Either.catch { json.decodeFromString<DailyDevotionalDto>(content) }
+                    .flatMapLeft {
+                        Either.catch {
+                            json.decodeFromString<DailyDevotionalWrapper>(content)
+                                .dailyDevotionalDto
+                        }
+                    }
+            }
+            .onLeft { Napier.e(tag = LogTag) { it.toString() } }
+            .mapLeft {
+                when (it) {
+                    is IOException -> Network
+                    else -> Server
+                }
+            }
 }

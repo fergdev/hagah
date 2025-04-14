@@ -7,13 +7,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,15 +33,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
+import com.fergdev.fcommon.ui.Spacer
 import com.fergdev.fcommon.ui.TypewriteText
 import com.fergdev.fcommon.ui.blockClicks
 import com.fergdev.fcommon.ui.widgets.FiveWaySwipeableScreenScope
 import com.fergdev.fcommon.ui.widgets.Screen.MAIN
 import com.fergdev.fcommon.util.next
 import com.fergdev.hagah.LocalHazeState
-import com.fergdev.hagah.screens.main.MainViewModel.MainScreenState.Error
-import com.fergdev.hagah.screens.main.MainViewModel.MainScreenState.Loading
-import com.fergdev.hagah.screens.main.MainViewModel.MainScreenState.Success
+import com.fergdev.hagah.screens.main.MainViewModel.State.Error
+import com.fergdev.hagah.screens.main.MainViewModel.State.Loading
+import com.fergdev.hagah.screens.main.MainViewModel.State.Success
 import com.fergdev.hagah.screens.main.SuccessCards.CallToAction
 import com.fergdev.hagah.screens.main.SuccessCards.Date
 import com.fergdev.hagah.screens.main.SuccessCards.GoodBye
@@ -69,26 +68,35 @@ internal fun FiveWaySwipeableScreenScope.MainScreen(
 ) {
     val viewModel = koinViewModel<MainViewModel>()
     val state by viewModel.state.collectAsState()
-    LaunchedEffect(state) { navigate(MAIN) }
 
     Box(modifier = modifier, contentAlignment = Center) {
-        when (state) {
-            is Loading ->
-                Box(modifier = Modifier.faze()) {
-                    PulsingText(modifier = Modifier.padding(16.dp), text = "Loading Hagah")
-                }
-
-            is Success -> SuccessContent(state as Success)
-
-            is Error -> {
-                Column {
-                    Text((state as Error).message)
-                    Button(onClick = { viewModel.retry() }) {
-                        Text("Retry")
-                    }
-                }
-            }
+        when (val it = state) {
+            is Loading -> LoadingContent()
+            is Success -> SuccessContent(it)
+            is Error -> ErrorContent(message = it.message, viewModel::retry)
         }
+    }
+}
+
+@Composable
+private fun ErrorContent(message: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .faze()
+            .clickable(onClick = onClick)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(message)
+            Spacer(height = 8.dp)
+            Text("Retry")
+        }
+    }
+}
+
+@Composable
+private fun LoadingContent() {
+    Box(modifier = Modifier.faze()) {
+        PulsingText(modifier = Modifier.padding(16.dp), text = "Loading Hagah")
     }
 }
 
@@ -159,8 +167,9 @@ private enum class SuccessCards {
 }
 
 @Composable
-private fun SuccessContent(success: Success) {
+private fun FiveWaySwipeableScreenScope.SuccessContent(success: Success) {
     key(success.dailyHagah) {
+        LaunchedEffect(success.dailyHagah) { navigate(MAIN) }
         var currentCard by remember { mutableStateOf(Date) }
         val coroutineScope = rememberCoroutineScope()
         val next: (immediate: Boolean) -> Unit = remember(success) {
@@ -184,7 +193,7 @@ private fun SuccessContent(success: Success) {
                 when (currentCard) {
                     Date -> TypewriteText(
                         modifier = Modifier.padding(16.dp),
-                        text = success.today,
+                        text = success.date,
                         style = MaterialTheme.typography.titleLarge,
                         textColor = Color.White,
                         onTypingFinish = { next(false) }

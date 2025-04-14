@@ -1,31 +1,28 @@
 package com.fergdev.hagah.screens.settings
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fergdev.hagah.AppSettingsManager
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.fergdev.hagah.FViewModel
+import com.fergdev.hagah.screens.settings.SettingsViewModel.State
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 internal class SettingsViewModel(
-    private val settings: AppSettingsManager
-) : ViewModel() {
+    private val settings: AppSettingsManager,
+    dispatcher: CoroutineDispatcher = Dispatchers.Main
+) : FViewModel<State, Nothing>(initialState = State(), dispatcher = dispatcher) {
     data class State(val meditationDuration: Long = 0L)
-
-    private val _state = MutableStateFlow<State>(State())
-    val state: StateFlow<State> = _state
 
     init {
         viewModelScope.launch {
             settings.settings.collect {
-                _state.value = State(meditationDuration = it.meditationLength)
+                updateState { State(meditationDuration = it.meditationLength) }
             }
         }
     }
 
     fun setMeditationDuration(duration: Long) {
-        viewModelScope.launch {
-            settings.setMeditationDuration(duration)
-        }
+        launch { settings.setMeditationDuration(duration) }
     }
 }

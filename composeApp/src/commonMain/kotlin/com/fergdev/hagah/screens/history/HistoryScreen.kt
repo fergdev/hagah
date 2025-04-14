@@ -46,10 +46,9 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
     val state = viewModel.state.collectAsState()
 
     Box(modifier = modifier, contentAlignment = Center) {
-        when (state.value) {
+        when (val it = state.value) {
             is HistoryState.Loaded -> LoadedHistory(
-                history = state.value as HistoryState.Loaded,
-                onViewHistory = viewModel::onViewHistoryItem
+                history = it, onViewHistory = viewModel::onViewHistoryItem
             )
 
             HistoryState.Loading -> PulsingText("Loading History")
@@ -66,12 +65,10 @@ private fun LoadedHistory(
 ) {
     log(tag = "HistoryScreen") { "Loaded history ${history.historyMonths.size}" }
     val pagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = { history.historyMonths.size }
+        initialPage = 0, pageCount = { history.historyMonths.size }
     )
     HorizontalPager(
-        modifier = Modifier.fillMaxSize(),
-        state = pagerState
+        modifier = Modifier.fillMaxSize(), state = pagerState
     ) { page ->
         Box(contentAlignment = Center) {
             HistoryMonthView(month = history.historyMonths[page], onViewHistory = onViewHistory)
@@ -83,12 +80,10 @@ private fun LoadedHistory(
 private fun HistoryMonthView(month: HistoryMonth, onViewHistory: (HasHistory) -> Unit) {
     Box(modifier = Modifier.padding(16.dp)) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = CenterHorizontally
+            modifier = Modifier.padding(16.dp), horizontalAlignment = CenterHorizontally
         ) {
             Text(
-                text = month.title,
-                style = MaterialTheme.typography.titleLarge
+                text = month.title, style = MaterialTheme.typography.titleLarge
             )
             Spacer(height = 24.dp)
             HistoryCalendarView(days = month.list, onViewItem = onViewHistory)
@@ -110,11 +105,9 @@ private fun HistoryDay.backGroundAlpha() = when (this) {
     is HasHistory -> {
         val infiniteTransition = rememberInfiniteTransition(label = "Pulsing Text Transition")
         val alpha by infiniteTransition.animateFloat(
-            initialValue = UnusedAlpha,
-            targetValue = UsedAlpha,
+            initialValue = UnusedAlpha, targetValue = UsedAlpha,
             animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 600),
-                repeatMode = RepeatMode.Reverse
+                animation = tween(durationMillis = 600), repeatMode = RepeatMode.Reverse
             ),
             label = "Pulsing Text Alpha"
         )
@@ -148,8 +141,7 @@ private fun HistoryCalendarView(
     ) {
         items(titles) {
             Box(
-                modifier = Modifier.padding(4.dp),
-                contentAlignment = Center
+                modifier = Modifier.padding(4.dp), contentAlignment = Center
             ) {
                 Text(
                     text = it,
@@ -159,16 +151,14 @@ private fun HistoryCalendarView(
         }
         items(days) { day ->
             Box(
-                modifier = Modifier.padding(4.dp)
-                    .background(day.backGroundColor())
+                modifier = Modifier.padding(4.dp).background(day.backGroundColor())
                     .conditional<HasHistory, _>(day) {
                         clickable { onViewItem(it) }
                     },
                 contentAlignment = Center
             ) {
                 Text(
-                    text = "${day.dayOfMonth}",
-                    color = day.textColor()
+                    text = "${day.dayOfMonth}", color = day.textColor()
                 )
             }
         }
