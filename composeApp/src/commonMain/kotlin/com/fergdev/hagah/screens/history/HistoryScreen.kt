@@ -10,7 +10,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -34,6 +33,7 @@ import com.fergdev.hagah.screens.history.HistoryDay.Blank
 import com.fergdev.hagah.screens.history.HistoryDay.Future
 import com.fergdev.hagah.screens.history.HistoryDay.HasHistory
 import com.fergdev.hagah.screens.history.HistoryDay.NoHistory
+import com.fergdev.hagah.ui.HCard
 import com.fergdev.hagah.ui.PulsingText
 import io.github.aakira.napier.log
 import kotlinx.datetime.DayOfWeek
@@ -48,7 +48,8 @@ fun HistoryScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier, contentAlignment = Center) {
         when (val it = state.value) {
             is HistoryState.Loaded -> LoadedHistory(
-                history = it, onViewHistory = viewModel::onViewHistoryItem
+                history = it,
+                onViewHistory = viewModel::onViewHistoryItem
             )
 
             HistoryState.Loading -> PulsingText("Loading History")
@@ -64,30 +65,18 @@ private fun LoadedHistory(
     onViewHistory: (HasHistory) -> Unit
 ) {
     log(tag = "HistoryScreen") { "Loaded history ${history.historyMonths.size}" }
-    val pagerState = rememberPagerState(
-        initialPage = 0, pageCount = { history.historyMonths.size }
-    )
-    HorizontalPager(
-        modifier = Modifier.fillMaxSize(), state = pagerState
-    ) { page ->
-        Box(contentAlignment = Center) {
-            HistoryMonthView(month = history.historyMonths[page], onViewHistory = onViewHistory)
-        }
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { history.historyMonths.size })
+    HorizontalPager(modifier = Modifier.fillMaxSize().padding(16.dp), state = pagerState) { page ->
+        HistoryMonthView(month = history.historyMonths[page], onViewHistory = onViewHistory)
     }
 }
 
 @Composable
 private fun HistoryMonthView(month: HistoryMonth, onViewHistory: (HasHistory) -> Unit) {
-    Box(modifier = Modifier.padding(16.dp)) {
-        Column(
-            modifier = Modifier.padding(16.dp), horizontalAlignment = CenterHorizontally
-        ) {
-            Text(
-                text = month.title, style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(height = 24.dp)
-            HistoryCalendarView(days = month.list, onViewItem = onViewHistory)
-        }
+    HCard(horizontalAlignment = CenterHorizontally) {
+        Text(text = month.title, style = MaterialTheme.typography.titleLarge)
+        Spacer(height = 24.dp)
+        HistoryCalendarView(days = month.list, onViewItem = onViewHistory)
     }
 }
 
@@ -140,9 +129,7 @@ private fun HistoryCalendarView(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         items(titles) {
-            Box(
-                modifier = Modifier.padding(4.dp), contentAlignment = Center
-            ) {
+            Box(modifier = Modifier.padding(4.dp), contentAlignment = Center) {
                 Text(
                     text = it,
                     color = Color.White,

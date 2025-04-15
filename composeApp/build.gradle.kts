@@ -1,9 +1,5 @@
-import com.mikepenz.aboutlibraries.plugin.DuplicateMode
-import com.mikepenz.aboutlibraries.plugin.DuplicateRule
-import com.mikepenz.aboutlibraries.plugin.StrictMode
 import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
@@ -14,7 +10,6 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
-    alias(libs.plugins.aboutLibs)
     alias(libs.plugins.kover)
     alias(libs.plugins.mokkery)
     alias(libs.plugins.kotest)
@@ -65,7 +60,14 @@ kotlin {
         }
         binaries.executable()
     }
-    jvm("desktop")
+
+    jvm("desktop").compilations.all {
+        compileTaskProvider.configure {
+            compilerOptions {
+                freeCompilerArgs.addAll(Config.jvmCompilerArgs)
+            }
+        }
+    }
 
     listOf(
         iosX64(),
@@ -77,68 +79,79 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
         }
+        iosTarget.compilerOptions {
+            freeCompilerArgs.addAll(Config.compilerArgs)
+            freeCompilerArgs.addAll("-Xbinary=bundleId=ComposeApp")
+        }
     }
 
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(Config.jvmTarget)
-            freeCompilerArgs.addAll(Config.jvmCompilerArgs)
+    androidTarget().compilations.all {
+        compileTaskProvider.configure {
+            compilerOptions {
+                jvmTarget = Config.jvmTarget
+                freeCompilerArgs.addAll(Config.jvmCompilerArgs)
+            }
+        }
+    }
+
+    targets.all {
+        compilations.all {
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.addAll(Config.compilerArgs)
+                    optIn.addAll(Config.appOptIns)
+                    progressiveMode.set(true)
+                }
+            }
         }
     }
 
     sourceSets {
+        val desktopMain by getting
+        val desktopTest by getting
         commonMain {
-            kotlin.srcDir(generateBuildConfig.map { it.destinationDir })
-
-            @Suppress("OPT_IN_USAGE")
             compilerOptions {
-                freeCompilerArgs.addAll(Config.jvmCompilerArgs)
+                freeCompilerArgs.addAll(Config.compilerArgs)
+                optIn.addAll(Config.appOptIns)
+                progressiveMode.set(true)
             }
-            all {
-                languageSettings {
-                    //noinspection WrongGradleMethod
-                    Config.optIns.forEach { optIn(it) }
-                }
+            kotlin.srcDir(generateBuildConfig.map { it.destinationDir })
+            dependencies {
+                implementation(projects.fcommon)
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
 
-                dependencies {
-                    implementation(projects.fcommon)
-                    implementation(compose.runtime)
-                    implementation(compose.foundation)
-                    implementation(compose.material3)
-                    implementation(compose.ui)
-                    implementation(compose.components.resources)
-                    implementation(compose.components.uiToolingPreview)
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.ktor.client.logging)
 
-                    implementation(libs.ktor.client.core)
-                    implementation(libs.ktor.client.content.negotiation)
-                    implementation(libs.ktor.serialization.kotlinx.json)
-                    implementation(libs.ktor.client.logging)
+                implementation(libs.aboutLibs)
 
-                    implementation(libs.aboutLibs)
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose.viewmodel)
+                implementation(libs.navigation.compose)
+                implementation(libs.napier)
+                implementation(libs.compottie)
 
-                    implementation(libs.koin.core)
-                    implementation(libs.koin.compose.viewmodel)
-                    implementation(libs.navigation.compose)
-                    implementation(libs.napier)
-                    implementation(libs.compottie)
+                implementation(libs.multiplatform.settings)
+                implementation(libs.multiplatform.settings.coroutines)
+                implementation(libs.multiplatform.settings.no.arg)
+                implementation(libs.multiplatform.settings.observable)
 
-                    implementation(libs.multiplatform.settings)
-                    implementation(libs.multiplatform.settings.coroutines)
-                    implementation(libs.multiplatform.settings.no.arg)
-                    implementation(libs.multiplatform.settings.observable)
+                implementation(libs.arrow.core)
+                implementation(libs.arrow.fx.coroutines)
 
-                    implementation(libs.arrow.core)
-                    implementation(libs.arrow.fx.coroutines)
+                implementation(libs.kstore)
 
-                    implementation(libs.kstore)
-
-                    implementation(libs.kotlinx.datetime)
-                    implementation(libs.coil.compose)
-                    implementation(libs.coil.svg)
-                    implementation(libs.haze)
-                    implementation(libs.haze.materials)
-                }
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.coil.compose)
+                implementation(libs.coil.svg)
+                implementation(libs.slf4j.nop)
             }
         }
         commonTest.dependencies {
@@ -153,17 +166,15 @@ kotlin {
             implementation(libs.multiplatform.settings.test)
             implementation(libs.turbine)
         }
-        androidMain {
-            dependencies {
-                implementation(libs.androidx.activity.compose)
-                implementation(libs.androidx.compose.ui.tooling.preview)
-                implementation(libs.androidx.foundation.layout.android)
-                implementation(libs.androidx.media3.exoplayer)
-                implementation(libs.androidx.media3.ui)
-                implementation(libs.koin.android)
-                implementation(libs.kstore.file)
-                implementation(libs.ktor.client.okhttp)
-            }
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.compose.ui.tooling.preview)
+            implementation(libs.androidx.foundation.layout.android)
+            implementation(libs.androidx.media3.exoplayer)
+            implementation(libs.androidx.media3.ui)
+            implementation(libs.koin.android)
+            implementation(libs.kstore.file)
+            implementation(libs.ktor.client.okhttp)
         }
         androidUnitTest.dependencies {
             implementation(libs.junit)
@@ -171,14 +182,11 @@ kotlin {
             implementation(libs.junit.engine)
             implementation(libs.kotest.junit)
         }
-        iosMain {
-            dependencies {
-                implementation(libs.ktor.client.darwin)
-                implementation(libs.ktor.client.content.negotiation)
-                implementation(libs.kstore.file)
-            }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.kstore.file)
         }
-        val desktopMain by getting
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
@@ -186,9 +194,7 @@ kotlin {
             implementation(libs.appdirs)
             implementation(libs.kstore.file)
             implementation(libs.composemediaplayer)
-            implementation(libs.slf4j.nop)
         }
-        val desktopTest by getting
         desktopTest.dependencies {
             implementation(libs.kotest.junit)
             implementation(libs.koin.test)
@@ -273,8 +279,8 @@ compose {
         application {
             buildTypes.release.proguard {
                 version.set("7.7.0") // TODO test this for other builds
-                obfuscate = false
-                optimize = false // TODO: Solve the issues with ktor and compose-desktop...
+                obfuscate = true
+                optimize = true
                 configurationFiles.from(projectDir.resolve("proguard-rules.pro"))
             }
             mainClass = Config.mainClass
@@ -334,24 +340,6 @@ tasks.withType<Test> {
         showExceptions = true
         showStandardStreams = true
     }
-}
-
-aboutLibraries {
-    offlineMode = false
-    collect.fetchRemoteLicense = true
-    license.strictMode = StrictMode.FAIL
-    license.allowedLicenses.addAll(
-        "Apache-2.0",
-        "MIT",
-        "BSD-3-Clause",
-        "ASDKL",
-        "NOASSERTION",
-        "GPL-2.0"
-    ) // TODO check last item
-    license.allowedLicensesMap = mapOf(Pair("asdkl", listOf("androidx.jetpack.library")))
-    library.duplicationMode = DuplicateMode.MERGE
-    library.duplicationRule = DuplicateRule.SIMPLE
-    export.prettyPrint = true
 }
 
 // Disable wasm tests for now

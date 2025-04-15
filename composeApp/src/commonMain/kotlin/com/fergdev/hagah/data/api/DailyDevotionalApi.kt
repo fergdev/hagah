@@ -40,13 +40,12 @@ internal class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDev
     private val json = Json { ignoreUnknownKeys = true }
 
     private suspend fun requestData(): String {
-        val req = ChatGPTRequest(messages = listOf(Message(content = prompt)))
         val response = client.post(chatGptUrl) {
             headers {
                 append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 append(AUTHORIZATION, BuildFlags.apiKey)
             }
-            setBody(req)
+            setBody(ChatGPTRequest(messages = listOf(Message(content = prompt))))
         }
         return response.body<ChatGPTResponse>().choices.first().message.content
     }

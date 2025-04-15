@@ -1,8 +1,8 @@
 package com.fergdev.hagah.video
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,9 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
-import com.fergdev.hagah.LocalHazeState
-import dev.chrisbanes.haze.hazeSource
-import io.github.aakira.napier.Napier
+import io.github.aakira.napier.log
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.memScoped
@@ -31,40 +29,22 @@ import platform.Foundation.NSURL
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIView
 
+private const val LogTag = "IosVideoPlayer"
+
+@OptIn(ExperimentalForeignApi::class)
 @Composable
 actual fun VideoPlayer(
     url: String,
     modifier: Modifier,
 ) {
-    IosVideoPlayer(
-        modifier = modifier,
-        url = url,
-    )
-}
-
-@OptIn(ExperimentalForeignApi::class)
-fun createTimeRange(startSeconds: Double, durationSeconds: Double): CValue<CMTimeRange> =
-    memScoped {
-        val start = CMTimeMakeWithSeconds(startSeconds, preferredTimescale = 600)
-        val duration = CMTimeMakeWithSeconds(durationSeconds, preferredTimescale = 600)
-        CMTimeRangeMake(start, duration)
-    }
-
-@OptIn(ExperimentalForeignApi::class)
-@Composable
-fun IosVideoPlayer(
-    url: String,
-    modifier: Modifier = Modifier,
-) {
     // Create AVQueuePlayer
     val queuePlayer = remember {
-        Napier.d { "Creating AVQueuePlayer" }
+        log(tag = LogTag) { "Creating AVQueuePlayer" }
         AVQueuePlayer()
     }
-
     // Create AVPlayerViewController
     val avPlayerViewController = remember {
-        Napier.d { "Creating AVPlayerViewController" }
+        log(tag = LogTag) { "Creating AVPlayerViewController" }
         AVPlayerViewController().apply {
             showsPlaybackControls = false
             allowsPictureInPicturePlayback = false
@@ -72,38 +52,31 @@ fun IosVideoPlayer(
             player = queuePlayer
         }
     }
-
-    val validUrl = remember(url) { NSURL.URLWithString(url) }
-
+    val validUrl = remember(key1 = url) { NSURL.URLWithString(URLString = url) }
     // Create AVPlayerItem
-    val playerItem = remember(url) {
-        Napier.d { "Creating AVPlayerItem with URL: $url" }
+    val playerItem = remember(key1 = url) {
+        log(tag = LogTag) { "Creating AVPlayerItem with URL: $url" }
         AVPlayerItem(uRL = validUrl!!)
     }
-    var previousItem by remember { mutableStateOf<AVPlayerItem?>(null) }
-    var previousLooper by remember { mutableStateOf<AVPlayerLooper?>(null) }
-
+    var previousItem by remember<MutableState<AVPlayerItem?>> { mutableStateOf(null) }
+    var previousLooper by remember<MutableState<AVPlayerLooper?>> { mutableStateOf(null) }
     // Create AVPlayerLooper for looping
-    remember(url) {
-        Napier.d { "Creating AVPlayerLooper" }
+    remember(key1 = url) {
+        log(tag = LogTag) { "Creating AVPlayerLooper" }
         previousLooper?.disableLooping()
         queuePlayer.insertItem(playerItem, previousItem)
-        Napier.d { "Creating AVPlayerLooper 2" }
+        log(tag = LogTag) { "Creating AVPlayerLooper 2" }
         queuePlayer.advanceToNextItem()
         previousItem = playerItem
     }
-
-    LaunchedEffect(url) {
+    LaunchedEffect(key1 = url) {
         val asset = AVAsset.assetWithURL(validUrl!!)
         asset.loadValuesAsynchronouslyForKeys(listOf("duration")) {
             val duration = asset.duration
             val durationSeconds = CMTimeGetSeconds(duration)
-            Napier.d { "Duration of the asset: $durationSeconds s" }
+            log(tag = LogTag) { "Duration of the asset: $durationSeconds s" }
             val timeRange = createTimeRange(startSeconds = 0.0, durationSeconds = durationSeconds)
             previousItem?.let { queuePlayer.removeItem(it) }
-//            while (queuePlayer.items().size != 1) {
-//                Napier.d { "Removing item from queue" }
-//            }
             previousLooper = AVPlayerLooper(
                 player = queuePlayer,
                 templateItem = playerItem,
@@ -111,7 +84,6 @@ fun IosVideoPlayer(
             )
         }
     }
-
     UIKitView(
         factory = {
             val playerContainer = UIView()
@@ -134,17 +106,25 @@ fun IosVideoPlayer(
 
             playerContainer
         },
-        modifier = modifier.hazeSource(LocalHazeState.current).fillMaxSize(),
         update = { _ ->
-            Napier.d(message = "Update")
+            log(tag = LogTag) { "Update" }
             queuePlayer.play()
         },
         onRelease = {
-            Napier.d(message = "Release")
+            log(tag = LogTag) { "Release" }
         },
+        modifier = modifier,
         properties = UIKitInteropProperties(
             isInteractive = false,
             isNativeAccessibilityEnabled = false,
         )
     )
 }
+
+@OptIn(ExperimentalForeignApi::class)
+fun createTimeRange(startSeconds: Double, durationSeconds: Double): CValue<CMTimeRange> =
+    memScoped {
+        val start = CMTimeMakeWithSeconds(startSeconds, preferredTimescale = 600)
+        val duration = CMTimeMakeWithSeconds(durationSeconds, preferredTimescale = 600)
+        CMTimeRangeMake(start, duration)
+    }

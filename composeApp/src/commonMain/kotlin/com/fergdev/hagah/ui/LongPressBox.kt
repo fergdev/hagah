@@ -73,7 +73,7 @@ fun LongPressBox(
                 }
             ) {
                 Box(
-                    modifier = Modifier.faze().clickable {
+                    modifier = Modifier.clickable {
                         coroutineScope.launch {
                             indicatorScale.animateTo(
                                 targetValue = 0f,

@@ -12,7 +12,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val dataModule = module {
-    single<HttpClient> { httpClient }.bind<HttpClient>()
+    single<HttpClient> { httpClient() }.bind<HttpClient>()
     singleOf(::DailyDevotionalApiImpl).bind<DailyDevotionalApi>()
     singleOf(::DailyDevotionalStorageImpl).bind<DailyDevotionalStorage>()
     if (BuildFlags.mockData.isBlank()) {
