@@ -6,8 +6,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalWindowInfo
-import com.fergdev.hagah.LocalHazeState
-import dev.chrisbanes.haze.hazeSource
 import io.github.aakira.napier.Napier
 import io.github.kdroidfilter.composemediaplayer.VideoPlayerSurface
 import io.github.kdroidfilter.composemediaplayer.rememberVideoPlayerState
@@ -44,8 +42,7 @@ actual fun VideoPlayer(
 
     Napier.d(message = "scale: $scale")
     VideoPlayerSurface(
-        modifier = Modifier.scale(scale)
-            .hazeSource(LocalHazeState.current),
+        modifier = Modifier.scale(scale),
         playerState = player
     )
 }

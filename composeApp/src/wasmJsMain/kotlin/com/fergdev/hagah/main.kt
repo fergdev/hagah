@@ -6,6 +6,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.CanvasBasedWindow
 import com.fergdev.hagah.data.DailyHagah
+import com.fergdev.hagah.data.storage.StorageKey
 import com.fergdev.hagah.di.startKoin
 import io.github.kdroidfilter.composemediaplayer.htmlinterop.LocalLayerContainer
 import io.github.xxfast.kstore.storage.storeOf
@@ -14,7 +15,7 @@ import org.koin.dsl.module
 
 val wasmModule = module {
     single {
-        storeOf<List<DailyHagah>>(key = "dailyDevotional", default = emptyList())
+        storeOf<List<DailyHagah>>(key = StorageKey, default = emptyList())
     }
 }
 
@@ -30,5 +31,3 @@ fun main() {
         }
     }
 }
-
-external fun appLoaded()

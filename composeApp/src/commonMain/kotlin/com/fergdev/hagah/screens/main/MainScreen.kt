@@ -1,12 +1,13 @@
 package com.fergdev.hagah.screens.main
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,12 +27,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
-import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.fergdev.fcommon.ui.Spacer
 import com.fergdev.fcommon.ui.TypewriteText
@@ -39,7 +40,6 @@ import com.fergdev.fcommon.ui.blockClicks
 import com.fergdev.fcommon.ui.widgets.FiveWaySwipeableScreenScope
 import com.fergdev.fcommon.ui.widgets.Screen.MAIN
 import com.fergdev.fcommon.util.next
-import com.fergdev.hagah.LocalHazeState
 import com.fergdev.hagah.screens.main.MainViewModel.State.Error
 import com.fergdev.hagah.screens.main.MainViewModel.State.Loading
 import com.fergdev.hagah.screens.main.MainViewModel.State.Success
@@ -51,12 +51,8 @@ import com.fergdev.hagah.screens.main.SuccessCards.Prayer
 import com.fergdev.hagah.screens.main.SuccessCards.Reflection
 import com.fergdev.hagah.screens.main.SuccessCards.Verse
 import com.fergdev.hagah.screens.settings.main.timeFormatted
+import com.fergdev.hagah.ui.HCard
 import com.fergdev.hagah.ui.PulsingText
-import com.fergdev.hagah.ui.faze
-import dev.chrisbanes.haze.HazeProgressive
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeEffect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -67,36 +63,33 @@ internal fun FiveWaySwipeableScreenScope.MainScreen(
     modifier: Modifier = Modifier
 ) {
     val viewModel = koinViewModel<MainViewModel>()
-    val state by viewModel.state.collectAsState()
 
     Box(modifier = modifier, contentAlignment = Center) {
+        val state by viewModel.state.collectAsState()
         when (val it = state) {
             is Loading -> LoadingContent()
             is Success -> SuccessContent(it)
-            is Error -> ErrorContent(message = it.message, viewModel::retry)
+            is Error -> ErrorContent(message = it.message, onClick = viewModel::retry)
         }
     }
 }
 
 @Composable
 private fun ErrorContent(message: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .faze()
-            .clickable(onClick = onClick)
+    HCard(
+        modifier = Modifier.clickable(onClick = onClick),
+        horizontalAlignment = CenterHorizontally
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(message)
-            Spacer(height = 8.dp)
-            Text("Retry")
-        }
+        Text(message)
+        Spacer(height = 8.dp)
+        Text("Retry")
     }
 }
 
 @Composable
 private fun LoadingContent() {
-    Box(modifier = Modifier.faze()) {
-        PulsingText(modifier = Modifier.padding(16.dp), text = "Loading Hagah")
+    HCard(horizontalAlignment = CenterHorizontally) {
+        PulsingText(text = "Loading Hagah")
     }
 }
 
@@ -120,20 +113,9 @@ internal fun MeditationTimer(
         onFinish()
     }
 
-    val copy = MaterialTheme.colorScheme.scrim.copy(alpha = 0.2f)
     Box(
         contentAlignment = Center,
-        modifier = modifier
-            .blockClicks()
-            .hazeEffect(
-                state = LocalHazeState.current,
-                style = HazeStyle(
-                    backgroundColor = copy,
-                    tints = listOf(HazeTint(copy, BlendMode.ColorBurn))
-                ),
-            ) {
-                this.progressive = HazeProgressive.RadialGradient()
-            }
+        modifier = modifier.blockClicks()
     ) {
         Canvas(modifier = Modifier.size(220.dp).padding(24.dp)) {
             // Background ring
@@ -166,6 +148,8 @@ private enum class SuccessCards {
     GoodBye
 }
 
+private const val SuccessContentAnimationDuration = 300
+
 @Composable
 private fun FiveWaySwipeableScreenScope.SuccessContent(success: Success) {
     key(success.dailyHagah) {
@@ -183,21 +167,23 @@ private fun FiveWaySwipeableScreenScope.SuccessContent(success: Success) {
                 }
             }
         }
-        Crossfade(
-            modifier = Modifier,
-            targetState = currentCard,
-            animationSpec = tween(durationMillis = 2000),
-            label = "Card Animation"
-        ) {
-            Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Center) {
-                when (currentCard) {
-                    Date -> TypewriteText(
-                        modifier = Modifier.padding(16.dp),
-                        text = success.date,
-                        style = MaterialTheme.typography.titleLarge,
-                        textColor = Color.White,
-                        onTypingFinish = { next(false) }
-                    )
+        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Center) {
+            AnimatedContent(
+                targetState = currentCard,
+                transitionSpec = {
+                    fadeIn(tween(SuccessContentAnimationDuration)) togetherWith
+                        fadeOut(tween(SuccessContentAnimationDuration))
+                }
+            ) {
+                when (it) {
+                    Date -> HCard {
+                        TypewriteText(
+                            text = success.date,
+                            style = MaterialTheme.typography.titleLarge,
+                            textColor = Color.White,
+                            onTypingFinish = { next(false) }
+                        )
+                    }
 
                     Verse -> {
                         SectionCard(
@@ -251,26 +237,23 @@ private fun SectionCard(
     message: String? = null,
     onNext: (immediate: Boolean) -> Unit = {}
 ) {
-    Box(modifier = Modifier.fillMaxWidth().faze().clickable { onNext(true) }) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = CenterVertically) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-            }
+    HCard(modifier = Modifier.fillMaxWidth().clickable { onNext(true) }) {
+        Text(
+            textAlign = TextAlign.Center,
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        subtitle?.let {
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyLarge
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            subtitle?.let {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-            message?.let {
-                TypewriteText(text = message, style = MaterialTheme.typography.bodyLarge) {
-                    onNext(false)
-                }
+        }
+        message?.let {
+            TypewriteText(text = message, style = MaterialTheme.typography.bodyLarge) {
+                onNext(false)
             }
         }
     }

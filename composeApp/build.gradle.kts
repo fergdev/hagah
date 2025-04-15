@@ -110,6 +110,11 @@ kotlin {
         val desktopMain by getting
         val desktopTest by getting
         commonMain {
+            compilerOptions {
+                freeCompilerArgs.addAll(Config.compilerArgs)
+                optIn.addAll(Config.appOptIns)
+                progressiveMode.set(true)
+            }
             kotlin.srcDir(generateBuildConfig.map { it.destinationDir })
             dependencies {
                 implementation(projects.fcommon)
@@ -146,8 +151,6 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.coil.compose)
                 implementation(libs.coil.svg)
-                implementation(libs.haze)
-                implementation(libs.haze.materials)
                 implementation(libs.slf4j.nop)
             }
         }

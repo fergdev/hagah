@@ -17,7 +17,6 @@ detekt = "1.23.8"
 exoplayer = "1.6.0"
 foundationLayoutAndroid = "1.7.8"
 gradleDoctorPlugin = "0.10.0"
-haze = "1.5.2"
 junit = "5.13.0-M2"
 koin = "4.0.4"
 kotest = "6.0.0.M3"
@@ -63,8 +62,6 @@ detekt-compose = { module = "ru.kode:detekt-rules-compose", version.ref = "compo
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detekt-gradle = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 detekt-libraries = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries", version.ref = "detekt" }
-haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
-haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = "haze" }
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }

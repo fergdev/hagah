@@ -14,7 +14,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
 @OptIn(ExperimentalForeignApi::class)
-private val desktopModule = module {
+private val iosModule = module {
     single {
         val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
             directory = NSDocumentDirectory,
@@ -34,6 +34,6 @@ private val desktopModule = module {
 
 @Suppress("unused", "FunctionName")
 fun MainViewController() = ComposeUIViewController {
-    startKoin(modules = listOf(desktopModule))
+    startKoin(modules = listOf(iosModule))
     App()
 }

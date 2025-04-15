@@ -24,6 +24,7 @@ internal interface DailyDevotionalStorage {
 }
 
 const val HagahDb = "hagah.db"
+const val StorageKey = "hagah"
 
 private const val LogTag = "Storage"
 

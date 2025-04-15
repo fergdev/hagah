@@ -2,7 +2,6 @@ package com.fergdev.hagah.video
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.view.LayoutInflater
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -16,8 +15,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import com.fergdev.hagah.LocalHazeState
-import dev.chrisbanes.haze.hazeSource
 import io.github.aakira.napier.Napier
 import org.koin.compose.koinInject
 
@@ -51,18 +48,14 @@ actual fun VideoPlayer(
     }
     AndroidView(
         factory = { viewBlockContext ->
-            val inflater = LayoutInflater.from(viewBlockContext)
-            (inflater.inflate(com.fergdev.hagah.R.layout.exo, null) as PlayerView).apply {
+            PlayerView(viewBlockContext).apply {
                 player = currentExoPlayer
                 resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                 useController = false
             }
         },
-        update = {
-        },
-        modifier = modifier
-            .fillMaxSize()
-            .hazeSource(LocalHazeState.current),
+        update = {},
+        modifier = modifier.fillMaxSize(),
         onRelease = {}
     )
 }
