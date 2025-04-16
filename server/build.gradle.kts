@@ -1,5 +1,3 @@
-import org.intellij.lang.annotations.Language
-
 plugins {
     alias(serverLibs.plugins.ktor)
     id(libs.plugins.kotlinJvm.id)
@@ -10,48 +8,22 @@ plugins {
 group = Config.group
 version = Config.versionName
 
-@Language("Kotlin")
-// language=kotlin
-val buildConfig = """
-    package ${Config.namespace}
-    internal object BuildFlags {
-        const val appName = "${Config.appName}"
-        const val versionName = "${Config.versionName}"
-        const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
-        const val supportEmail = "${Config.supportEmail}"
-        const val apiKey = "${localProperties().value.openApiKey()}"
-        const val mockData = "${localProperties().value.mockData()}"
-    }
-""".trimIndent()
-
-val generateBuildConfig by tasks.registering(Sync::class) {
-    from(resources.text.fromString(buildConfig)) {
-        rename { "BuildFlags.kt" }
-        into(Config.namespace.replace(".", "/"))
-    }
-    // the target directory
-    into(layout.buildDirectory.dir("generated/kotlin/src/commonMain"))
-}
-
 kotlin {
-//    sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
-
     sourceSets {
-        val main by getting {
+        main {
             kotlin.srcDir("src/main/kotlin")
+            compilerOptions {
+                jvmTarget = Config.jvmTarget
+                freeCompilerArgs.addAll(Config.jvmCompilerArgs)
+                progressiveMode.set(true)
+            }
         }
     }
-//    sourceSets.all {
-//        compilerOptions {
-//            jvmTarget = Config.jvmTarget
-//            freeCompilerArgs.addAll(Config.jvmCompilerArgs)
-//            progressiveMode.set(true)
-//        }
-//    }
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
+
 ktor {
     fatJar {
         archiveFileName.set("hagah-server.jar")
@@ -85,7 +57,6 @@ dependencies {
     implementation("io.ktor:ktor-network-tls-certificates:3.1.2")
     implementation("io.ktor:ktor-server-netty:3.1.2")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
-
 
     testImplementation(serverLibs.kotlin.test.junit)
 }

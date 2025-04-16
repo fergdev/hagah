@@ -22,7 +22,6 @@ internal interface DailyDevotionalApi {
     }
 }
 
-private const val AUTHORIZATION = "Authorization"
 private const val LogTag = "API"
 
 internal class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalApi {

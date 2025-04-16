@@ -1,6 +1,6 @@
 package com.fergdev.hagah.server.di
 
-import com.fergdev.hagah.server.api.ChatGPTApiImpl
+import com.fergdev.hagah.server.api.ChatGPTApi
 import com.fergdev.hagah.server.database.DatabaseFactory
 import com.fergdev.hagah.server.repository.DevotionalRepository
 import io.ktor.client.HttpClient
@@ -17,7 +17,7 @@ import org.kodein.di.singleton
 import org.ktorm.database.Database
 
 val serverModule = DI.Module("devotionalModule") {
-    bind<ChatGPTApiImpl>() with singleton { ChatGPTApiImpl(instance()) }
+    bind<ChatGPTApi>() with singleton { ChatGPTApi(instance()) }
     bind<HttpClient>() with singleton {
         HttpClient {
             install(ContentNegotiation) {
@@ -30,7 +30,7 @@ val serverModule = DI.Module("devotionalModule") {
                     contentType = ContentType.Application.Json
                 )
             }
-            install(Logging){
+            install(Logging) {
                 level = LogLevel.ALL
             }
         }

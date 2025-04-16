@@ -30,6 +30,5 @@ val androidModule = module {
             codec = FileCodec(Path(context.filesDir.absolutePath, HagahDb)),
             default = emptyList()
         )
-
     }.bind<KStore<List<DailyHagah>>>()
 }

@@ -1,4 +1,4 @@
-package com.fergdev.hagah.screens.history
+package com.fergdev.hagah
 
 import app.cash.turbine.ReceiveTurbine
 import io.kotest.assertions.withClue

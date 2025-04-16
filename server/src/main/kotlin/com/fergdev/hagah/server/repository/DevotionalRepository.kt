@@ -7,14 +7,8 @@ import com.fergev.hagah.data.dto.VerseDto
 import kotlinx.datetime.LocalDate
 import org.ktorm.database.Database
 import org.ktorm.dsl.eq
-import org.ktorm.dsl.from
 import org.ktorm.dsl.insert
-import org.ktorm.dsl.limit
-import org.ktorm.dsl.map
-import org.ktorm.dsl.select
-import org.ktorm.dsl.where
 import org.ktorm.entity.Entity
-import org.ktorm.entity.count
 import org.ktorm.entity.firstOrNull
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
@@ -23,7 +17,6 @@ import org.ktorm.schema.text
 import org.ktorm.schema.varchar
 
 class DevotionalRepository(private val db: Database) {
-    fun entries() = db.sequenceOf(Devotionals).count()
     fun getByDate(date: LocalDate): Either<Unit, DailyDevotionalDto> {
         val date = date.toString()
         return db.sequenceOf(Devotionals)
