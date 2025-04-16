@@ -1,3 +1,5 @@
+import org.intellij.lang.annotations.Language
+
 plugins {
     alias(serverLibs.plugins.ktor)
     id(libs.plugins.kotlinJvm.id)
@@ -8,16 +10,44 @@ plugins {
 group = Config.group
 version = Config.versionName
 
-kotlin {
-    sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
+@Language("Kotlin")
+// language=kotlin
+val buildConfig = """
+    package ${Config.namespace}
+    internal object BuildFlags {
+        const val appName = "${Config.appName}"
+        const val versionName = "${Config.versionName}"
+        const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
+        const val supportEmail = "${Config.supportEmail}"
+        const val apiKey = "${localProperties().value.openApiKey()}"
+        const val mockData = "${localProperties().value.mockData()}"
+    }
+""".trimIndent()
 
-    sourceSets.all {
-        compilerOptions {
-            jvmTarget = Config.jvmTarget
-            freeCompilerArgs.addAll(Config.jvmCompilerArgs)
-            progressiveMode.set(true)
+val generateBuildConfig by tasks.registering(Sync::class) {
+    from(resources.text.fromString(buildConfig)) {
+        rename { "BuildFlags.kt" }
+        into(Config.namespace.replace(".", "/"))
+    }
+    // the target directory
+    into(layout.buildDirectory.dir("generated/kotlin/src/commonMain"))
+}
+
+kotlin {
+//    sourceSets["main"].kotlin.srcDirs("src/main/kotlin")
+
+    sourceSets {
+        val main by getting {
+            kotlin.srcDir("src/main/kotlin")
         }
     }
+//    sourceSets.all {
+//        compilerOptions {
+//            jvmTarget = Config.jvmTarget
+//            freeCompilerArgs.addAll(Config.jvmCompilerArgs)
+//            progressiveMode.set(true)
+//        }
+//    }
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
