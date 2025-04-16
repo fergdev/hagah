@@ -10,7 +10,9 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
     @Suppress("OPT_IN_USAGE")
-    wasmJs()
+    wasmJs {
+        browser()
+    }
 
     targets.all {
         compilations.all {

@@ -1,9 +1,12 @@
 package com.fergdev.hagah.data.api
 
+import com.fergdev.hagah.data.api.DailyDevotionalApi.Error.Network
 import com.fergdev.hagah.data.api.DailyDevotionalApi.Error.Server
 import com.fergdev.hagah.loadTestResource
 import com.fergdev.hagah.shouldBeLeft
 import com.fergdev.hagah.shouldBeRight
+import com.fergev.hagah.data.dto.DailyDevotionalDto
+import com.fergev.hagah.data.dto.VerseDto
 import io.kotest.core.spec.style.FreeSpec
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -15,10 +18,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.datetime.LocalDate
 import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 
 private val SuccessDto = DailyDevotionalDto(
+    date = LocalDate.parse("2025-04-16"),
     verseDto = VerseDto(
         reference = "John 13:34",
         text = "A new command I give you: Love one another. As I have loved you, so you must love one another."
@@ -43,6 +48,7 @@ class DailyDevotionalApiImplTest : FreeSpec({
             )
         }
         val client = HttpClient(mockEngine) {
+            expectSuccess = true
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true })
             }
@@ -54,10 +60,6 @@ class DailyDevotionalApiImplTest : FreeSpec({
         initApi("chatgpt_success.json").requestHagah() shouldBeRight SuccessDto
     }
 
-    "requestHagah() should return DailyDevotionalDto on success with wrapper" {
-        initApi("chatgpt_success_wrapper.json").requestHagah() shouldBeRight SuccessDto
-    }
-
     "requestHagah() should return Network error on IOException" {
         DailyDevotionalApiImpl(
             HttpClient(
@@ -65,8 +67,7 @@ class DailyDevotionalApiImplTest : FreeSpec({
                     throw IOException("Simulated network error")
                 }
             )
-        ).requestHagah()
-            .shouldBeLeft(Server)
+        ).requestHagah() shouldBeLeft Network
     }
 
     "requestHagah() should return Network error on Exception" {

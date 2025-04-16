@@ -15,38 +15,46 @@ plugins {
     alias(libs.plugins.kotest)
 }
 
-val isDebug = project.hasProperty("isDebug") || gradle.startParameter.taskNames.any { it.contains("Debug") }
-val baseUrl = if (isDebug) "http://10.0.2.2:8080" else "https://api.example.com"
-//
-//@Language("Kotlin")
-//// language=kotlin
-//val buildConfig = """
-//    package ${Config.namespace}
-//    internal object BuildFlags {
-//        const val appName = "${Config.appName}"
-//        const val versionName = "${Config.versionName}"
-//        const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
-//        const val supportEmail = "${Config.supportEmail}"
-//        const val apiKey = "${localProperties().value.openApiKey()}"
-//        const val mockData = "${localProperties().value.mockData()}"
-//        const val baseUrl = "${baseUrl}"
-//    }
-//""".trimIndent()
+val isDebug =
+    project.hasProperty("isDebug") or
+        gradle.startParameter.taskNames.any { it.contains("Debug") } or
+        gradle.startParameter.taskNames.any { it.contains("Test") }
+
+val baseUrl =
+    if (isDebug) "http://10.0.2.2:8080" else "https://serene-dedication-production.up.railway.app"
+
+val buildFlavour = if (isDebug) {
+    localProperties().value.flavor().ifEmpty { "debug" }
+} else {
+    "release"
+}
+
+@Language("Kotlin")
+// language=kotlin
+val buildConfig = """
+    package ${Config.namespace}
+    internal object BuildFlags {
+        const val appName = "${Config.appName}"
+        const val versionName = "${Config.versionName}"
+        const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
+        const val supportEmail = "${Config.supportEmail}"
+        const val flavorKey = "$buildFlavour"
+        const val baseUrl = "$baseUrl"
+    }
+""".trimIndent()
 
 val generateBuildConfig by tasks.registering(Sync::class) {
-//    from(resources.text.fromString(buildConfig)) {
-//        rename { "BuildFlags.kt" }
-//        into(Config.namespace.replace(".", "/"))
-//    }
-    // the target directory
-//    into(layout.buildDirectory.dir("generated/kotlin/src/commonMain"))
+    from(resources.text.fromString(buildConfig)) {
+        rename { "BuildFlags.kt" }
+        into(Config.namespace.replace(".", "/"))
+    }
+    into(layout.buildDirectory.dir("generated/kotlin/src/commonMain"))
 }
 
 kotlin {
     applyDefaultHierarchyTemplate()
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
+    @OptIn(ExperimentalWasmDsl::class) wasmJs {
         outputModuleName = "composeApp"
         browser {
             val rootDirPath = project.rootDir.path
@@ -69,16 +77,14 @@ kotlin {
     jvm("desktop").compilations.all {
         compileTaskProvider.configure {
             compilerOptions {
+                jvmTarget = Config.jvmTarget
                 freeCompilerArgs.addAll(Config.jvmCompilerArgs)
             }
         }
     }
 
     listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-        //noinspection WrongGradleMethod
+        iosX64(), iosArm64(), iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
@@ -161,8 +167,7 @@ kotlin {
             }
         }
         commonTest.dependencies {
-            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-            implementation(compose.uiTest)
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class) implementation(compose.uiTest)
             implementation(libs.koin.test)
             implementation(libs.kotest)
             implementation(libs.kotest.assertions.core)
@@ -243,26 +248,25 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-//    signingConfigs {
-//        create("release") {
-//            with(localProperties().value) {
-//                storePassword = storePassword()
-//                storeFile = File(rootDir, keyStorePath())
-//                keyPassword = keyPassword()
-//                keyAlias = keyAlias()
-//            }
-//        }
-//    }
+    signingConfigs {
+        create("release") {
+            with(localProperties().value) {
+                storePassword = storePassword()
+                storeFile = File(rootDir, keyStorePath())
+                keyPassword = keyPassword()
+                keyAlias = keyAlias()
+            }
+        }
+    }
     buildTypes {
-//        release {
-//            isShrinkResources = true
-//            isMinifyEnabled = true
-//            proguardFiles(
-//                getDefaultProguardFile("proguard-android-optimize.txt"),
-//                "proguard-rules.pro"
-//            )
-////            signingConfig = signingConfigs.getByName("release")
-//        }
+        release {
+            isShrinkResources = true
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("release")
+        }
         debug {
             isMinifyEnabled = false
             isShrinkResources = false
@@ -308,7 +312,7 @@ compose {
                 val iconDir = rootProject.rootDir.resolve("playstore")
 
                 macOS {
-                    packageName = Config.appName
+                    packageName = Config.namespace
                     dockName = Config.appName
                     setDockNameSameAsPackageName = false
                     bundleID = Config.namespace
@@ -332,9 +336,6 @@ compose {
         }
     }
 }
-
-tasks.withType<JavaExec>().named { it == "composeApp:desktopRun" }
-    .configureEach { mainClass = Config.mainClass }
 
 junitPlatform {
     instrumentationTests.enabled = false

@@ -14,15 +14,15 @@ import kotlinx.io.IOException
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
-private val logger = LoggerFactory.getLogger("ChatGPTLogger")
-
 private const val AUTHORIZATION = "Authorization"
 
-internal class ChatGPTApiImpl(private val client: HttpClient) {
+internal class ChatGPTApi(private val client: HttpClient) {
     internal sealed interface ApiError {
         data object Server
         data object Network
     }
+
+    private val logger = LoggerFactory.getLogger("ChatGPTLogger")
 
     private val chatGptUrl = "https://api.openai.com/v1/chat/completions"
 

@@ -11,6 +11,7 @@ import ca.gosyer.appdirs.AppDirs
 import com.fergdev.hagah.data.DailyHagah
 import com.fergdev.hagah.data.storage.HagahDb
 import com.fergdev.hagah.di.startKoin
+import io.github.aakira.napier.log
 import io.github.xxfast.kstore.file.FileCodec
 import io.github.xxfast.kstore.storeOf
 import kotlinx.io.files.Path
@@ -24,6 +25,7 @@ private val desktopModule = module {
         )
 
         val file = Path(filesDir.getUserDataDir(), HagahDb)
+        log { "DesktopModule dbFile: $file" }
         storeOf<List<DailyHagah>>(
             codec = FileCodec(file),
             default = emptyList()

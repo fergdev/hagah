@@ -2,7 +2,9 @@ package com.fergdev.hagah.di
 
 import com.fergdev.hagah.AppSettingsManager
 import com.fergdev.hagah.AppSettingsMangerImpl
+import com.fergdev.hagah.Flavor
 import com.fergdev.hagah.data.dataModule
+import com.fergdev.hagah.notEnabled
 import com.fergdev.hagah.screens.viewModelModule
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.coroutines.FlowSettings
@@ -23,10 +25,16 @@ inline fun startKoin(
     modules: List<Module> = emptyList(),
     crossinline configure: KoinAppDeclaration = { }
 ): KoinApplication = org.koin.core.context.startKoin {
-    Napier.base(DebugAntilog())
+    initLogging()
     modules(modules + sharedModule)
     configure()
     createEagerInstances()
+}
+
+fun initLogging() {
+    if (Flavor.Release.notEnabled) {
+        Napier.base(DebugAntilog())
+    }
 }
 
 val sharedModule = module {

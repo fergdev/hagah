@@ -1,6 +1,6 @@
 package com.fergdev.hagah.server
 
-import com.fergdev.hagah.server.api.ChatGPTApiImpl
+import com.fergdev.hagah.server.api.ChatGPTApi
 import com.fergdev.hagah.server.api.toDailyDevotionalDto
 import com.fergdev.hagah.server.di.serverModule
 import com.fergdev.hagah.server.repository.DevotionalRepository
@@ -21,9 +21,8 @@ import org.kodein.di.instance
 import org.kodein.di.ktor.closestDI
 import org.kodein.di.ktor.di
 
-
 private val Port = System.getenv("PORT")?.toIntOrNull() ?: 8080
-private val Host = "0.0.0.0"
+private val Host = System.getenv("HOST") ?: "0.0.0.0"
 
 fun main() {
     embeddedServer(
@@ -35,16 +34,14 @@ fun main() {
 }
 
 fun Application.module() {
-    install(ContentNegotiation) {
-        json()
-    }
+    install(ContentNegotiation) { json() }
     di { import(serverModule) }
 
     routing {
         get("/daily") {
             val repo by call.closestDI().instance<DevotionalRepository>()
             repo.getByDate(Clock.System.nowDate()).flatMapLeft {
-                val api by call.closestDI().instance<ChatGPTApiImpl>()
+                val api by call.closestDI().instance<ChatGPTApi>()
                 api.requestHagah()
                     .map { it.toDailyDevotionalDto() }
                     .onRight { repo.insert(it) }
@@ -59,4 +56,3 @@ fun Application.module() {
         }
     }
 }
-

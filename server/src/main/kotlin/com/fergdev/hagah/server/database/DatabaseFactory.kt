@@ -14,16 +14,16 @@ object DatabaseFactory {
                 conn.createStatement().use { stmt ->
                     stmt.executeUpdate(
                         """
-            CREATE TABLE IF NOT EXISTS devotionals (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                date TEXT NOT NULL,
-                verse_reference TEXT NOT NULL,
-                verse_text TEXT NOT NULL,
-                reflection TEXT NOT NULL,
-                call_to_action TEXT NOT NULL,
-                prayer TEXT NOT NULL
-            );
-        """.trimIndent()
+                            CREATE TABLE IF NOT EXISTS devotionals (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                date TEXT NOT NULL,
+                                verse_reference TEXT NOT NULL,
+                                verse_text TEXT NOT NULL,
+                                reflection TEXT NOT NULL,
+                                call_to_action TEXT NOT NULL,
+                                prayer TEXT NOT NULL
+                            );
+                        """.trimIndent()
                     )
                 }
             }
