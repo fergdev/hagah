@@ -15,22 +15,8 @@ import platform.Foundation.stringWithContentsOfFile
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 actual fun loadTestResource(resourceName: String): String {
-    val pathParts = resourceName.split("[.|/]".toRegex())
-    println(pathParts)
-//    val path = NSBundle.mainBundle.pathForResource("/resources/${pathParts[0]}", pathParts[1])
     val path = "${NSBundle.mainBundle.bundlePath}/resources/$resourceName"
-    println("Bundle path $path")
-    requireNotNull(path) {
-        "Error loading resource $path"
-    }
-//    val file: CPointer<FILE>? = fopen(path, "r")
-//    val size = ftell(file)
-//    rewind(file)
-//    return memScoped {
-//        val tmp = allocArray<ByteVar>(size)
-//        fread(tmp, sizeOf<ByteVar>().convert(), size.convert(), file)
-//        tmp.toKString()
-//    }
+    requireNotNull(path) { "Error loading resource $path" }
     return memScoped {
         val error = alloc<ObjCObjectVar<NSError?>>()
         NSString.stringWithContentsOfFile(path, NSUTF8StringEncoding, error.ptr)

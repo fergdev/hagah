@@ -1,0 +1,1 @@
+java -jar server/build/libs/hagah-server.jar

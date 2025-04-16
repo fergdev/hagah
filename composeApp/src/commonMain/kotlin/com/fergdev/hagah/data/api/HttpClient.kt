@@ -12,19 +12,22 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 private const val HTTP_TIMEOUT = 60_000L
-internal val httpClient: HttpClient = HttpClient {
+internal fun httpClient(): HttpClient = HttpClient {
+
     install(ContentNegotiation) {
         json(
             json = Json {
+                prettyPrint = true
                 ignoreUnknownKeys = true
                 encodeDefaults = true
             },
-            contentType = ContentType.Any
+            contentType = ContentType.Application.Json
         )
     }
     install(HttpTimeout) {
         requestTimeoutMillis = HTTP_TIMEOUT
         socketTimeoutMillis = HTTP_TIMEOUT
+        connectTimeoutMillis = HTTP_TIMEOUT
     }
     install(Logging) {
         level = LogLevel.ALL

@@ -42,8 +42,8 @@ object Config {
     const val privacyPolicyUrl = "TODO"
 
     // Versions
-    val stabilityLevels = listOf("snapshot", "eap", "preview", "alpha", "beta", "m", "cr", "rc")
-    val minStabilityLevel = stabilityLevels.indexOf("beta")
+    val stabilityLevels = listOf("dev", "snapshot", "eap", "preview", "alpha", "beta", "m", "cr", "rc")
+    val minStabilityLevel = stabilityLevels.indexOf("m")
 
     // Args
     val optIns = listOf(
@@ -52,9 +52,12 @@ object Config {
         "kotlin.RequiresOptIn",
         "kotlin.experimental.ExperimentalTypeInference",
         "kotlin.contracts.ExperimentalContracts",
-        "org.jetbrains.compose.resources.ExperimentalResourceApi",
-        "com.russhwolf.settings.ExperimentalSettingsApi",
     )
+    val appOptIns = buildList {
+        addAll(optIns)
+        add("org.jetbrains.compose.resources.ExperimentalResourceApi")
+        add("com.russhwolf.settings.ExperimentalSettingsApi")
+    }
     val compilerArgs = listOf(
         "-Xexpect-actual-classes",
         "-Xcontext-receivers",

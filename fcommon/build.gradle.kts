@@ -31,7 +31,12 @@ kotlin {
         binaries.library()
     }
 
-    jvm("desktop")
+    jvm("desktop") {
+        compilerOptions {
+            jvmTarget.set(Config.jvmTarget)
+            freeCompilerArgs.addAll(Config.jvmCompilerArgs)
+        }
+    }
 
     val xcfName = "fcommonKit"
     listOf(
@@ -61,26 +66,20 @@ kotlin {
             }
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlin.test)
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
 
-        androidMain {
-            dependencies {
-                implementation(fLibs.kotlin.coroutines.android)
-            }
+        androidMain.dependencies {
+            implementation(fLibs.kotlin.coroutines.android)
         }
-        iosMain {
-            dependencies {
-            }
-        }
+//        iosMain .dependencies {
+//            }
         desktopMain.dependencies {
             implementation(fLibs.kotlin.coroutines.swing)
         }
-        wasmJs {
-        }
+//        wasmJs {
+//        }
     }
     sourceSets.apply {
         all {
@@ -88,18 +87,6 @@ kotlin {
                 progressiveMode = true
                 //noinspection WrongGradleMethod
                 Config.optIns.forEach { optIn(it) }
-            }
-        }
-    }
-
-    targets.all {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    freeCompilerArgs.addAll(Config.compilerArgs)
-                    optIn.addAll(Config.optIns)
-                    progressiveMode.set(true)
-                }
             }
         }
     }

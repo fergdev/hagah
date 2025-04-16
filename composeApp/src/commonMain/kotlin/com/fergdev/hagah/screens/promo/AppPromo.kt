@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.fergdev.fcommon.ui.TypewriteText
+import com.fergdev.hagah.ui.HCard
 
 private val HagahIntro = """
     Hagah is a Hebrew word meaning to meditate or reflect deeply.
@@ -21,7 +22,7 @@ fun AppPromoContent(modifier: Modifier = Modifier) {
         modifier = modifier.padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        Box(modifier = Modifier.wrapContentSize()) {
+        HCard(modifier = Modifier.wrapContentSize()) {
             TypewriteText(
                 modifier = Modifier.padding(16.dp),
                 text = HagahIntro,
