@@ -17,29 +17,29 @@ plugins {
 
 val isDebug = project.hasProperty("isDebug") || gradle.startParameter.taskNames.any { it.contains("Debug") }
 val baseUrl = if (isDebug) "http://10.0.2.2:8080" else "https://api.example.com"
-
-@Language("Kotlin")
-// language=kotlin
-val buildConfig = """
-    package ${Config.namespace}
-    internal object BuildFlags {
-        const val appName = "${Config.appName}"
-        const val versionName = "${Config.versionName}"
-        const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
-        const val supportEmail = "${Config.supportEmail}"
-        const val apiKey = "${localProperties().value.openApiKey()}"
-        const val mockData = "${localProperties().value.mockData()}"
-        const val baseUrl = "${baseUrl}"
-    }
-""".trimIndent()
+//
+//@Language("Kotlin")
+//// language=kotlin
+//val buildConfig = """
+//    package ${Config.namespace}
+//    internal object BuildFlags {
+//        const val appName = "${Config.appName}"
+//        const val versionName = "${Config.versionName}"
+//        const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
+//        const val supportEmail = "${Config.supportEmail}"
+//        const val apiKey = "${localProperties().value.openApiKey()}"
+//        const val mockData = "${localProperties().value.mockData()}"
+//        const val baseUrl = "${baseUrl}"
+//    }
+//""".trimIndent()
 
 val generateBuildConfig by tasks.registering(Sync::class) {
-    from(resources.text.fromString(buildConfig)) {
-        rename { "BuildFlags.kt" }
-        into(Config.namespace.replace(".", "/"))
-    }
+//    from(resources.text.fromString(buildConfig)) {
+//        rename { "BuildFlags.kt" }
+//        into(Config.namespace.replace(".", "/"))
+//    }
     // the target directory
-    into(layout.buildDirectory.dir("generated/kotlin/src/commonMain"))
+//    into(layout.buildDirectory.dir("generated/kotlin/src/commonMain"))
 }
 
 kotlin {
@@ -243,26 +243,26 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-    signingConfigs {
-        create("release") {
-            with(localProperties().value) {
-                storePassword = storePassword()
-                storeFile = File(rootDir, keyStorePath())
-                keyPassword = keyPassword()
-                keyAlias = keyAlias()
-            }
-        }
-    }
+//    signingConfigs {
+//        create("release") {
+//            with(localProperties().value) {
+//                storePassword = storePassword()
+//                storeFile = File(rootDir, keyStorePath())
+//                keyPassword = keyPassword()
+//                keyAlias = keyAlias()
+//            }
+//        }
+//    }
     buildTypes {
-        release {
-            isShrinkResources = true
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            signingConfig = signingConfigs.getByName("release")
-        }
+//        release {
+//            isShrinkResources = true
+//            isMinifyEnabled = true
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//                "proguard-rules.pro"
+//            )
+////            signingConfig = signingConfigs.getByName("release")
+//        }
         debug {
             isMinifyEnabled = false
             isShrinkResources = false
