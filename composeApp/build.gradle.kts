@@ -15,6 +15,9 @@ plugins {
     alias(libs.plugins.kotest)
 }
 
+val isDebug = project.hasProperty("isDebug") || gradle.startParameter.taskNames.any { it.contains("Debug") }
+val baseUrl = if (isDebug) "http://10.0.2.2:8080" else "https://api.example.com"
+
 @Language("Kotlin")
 // language=kotlin
 val buildConfig = """
@@ -26,6 +29,7 @@ val buildConfig = """
         const val supportEmail = "${Config.supportEmail}"
         const val apiKey = "${localProperties().value.openApiKey()}"
         const val mockData = "${localProperties().value.mockData()}"
+        const val baseUrl = "${baseUrl}"
     }
 """.trimIndent()
 
@@ -37,6 +41,7 @@ val generateBuildConfig by tasks.registering(Sync::class) {
     // the target directory
     into(layout.buildDirectory.dir("generated/kotlin/src/commonMain"))
 }
+
 kotlin {
     applyDefaultHierarchyTemplate()
 
@@ -118,6 +123,7 @@ kotlin {
             kotlin.srcDir(generateBuildConfig.map { it.destinationDir })
             dependencies {
                 implementation(projects.fcommon)
+                implementation(projects.data)
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)

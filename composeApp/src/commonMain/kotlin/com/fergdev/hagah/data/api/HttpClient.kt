@@ -13,9 +13,6 @@ import kotlinx.serialization.json.Json
 
 private const val HTTP_TIMEOUT = 60_000L
 internal fun httpClient(): HttpClient = HttpClient {
-    engine {
-        useDefaultTransformers = true
-    }
 
     install(ContentNegotiation) {
         json(
