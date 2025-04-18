@@ -1,11 +1,12 @@
 package com.fergdev.hagah.data.api
 
 import arrow.core.Either
-import com.fergdev.hagah.BuildFlags
+import com.fergdev.hagah.Flavor
 import com.fergdev.hagah.data.api.DailyDevotionalApi.Error.Network
 import com.fergdev.hagah.data.api.DailyDevotionalApi.Error.Server
+import com.fergdev.hagah.hagahUrl
+import com.fergdev.hagah.logger
 import com.fergev.hagah.data.dto.DailyDevotionalDto
-import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -22,10 +23,9 @@ internal interface DailyDevotionalApi {
     }
 }
 
-private const val LogTag = "API"
-
 internal class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDevotionalApi {
-    private val endpoint = "${BuildFlags.baseUrl}/daily"
+    private val endpoint = "${Flavor.current.hagahUrl}/daily"
+    private val logger = logger("HagahApi")
 
     private suspend fun requestData(): DailyDevotionalDto {
         val response = client.get(endpoint) {
@@ -38,7 +38,7 @@ internal class DailyDevotionalApiImpl(private val client: HttpClient) : DailyDev
 
     override suspend fun requestHagah() =
         Either.catch { requestData() }
-            .onLeft { Napier.e(tag = LogTag) { it.toString() } }
+            .onLeft { logger.e("Error requesting hagah", it) }
             .mapLeft {
                 when (it) {
                     is IOException -> Network

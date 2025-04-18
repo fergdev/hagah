@@ -1,6 +1,5 @@
 package com.fergdev.hagah.video
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -12,13 +11,15 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import io.github.aakira.napier.Napier
+import com.fergdev.hagah.logger
 import org.koin.compose.koinInject
 
-@SuppressLint("InflateParams")
+private val logger = logger(tag = "")
+
 @UnstableApi
 @Composable
 actual fun VideoPlayer(
@@ -27,12 +28,22 @@ actual fun VideoPlayer(
 ) {
     val context: Context = koinInject<Context>()
     val currentExoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
+        ExoPlayer.Builder(context).apply {
+            val loadControl = DefaultLoadControl.Builder()
+                .setBufferDurationsMs(
+                    5_000, // minBufferMs
+                    15_000, // maxBufferMs
+                    1_000, // bufferForPlaybackMs
+                    2_000 // bufferForPlaybackAfterRebufferMs
+                )
+                .build()
+            setLoadControl(loadControl)
+        }.build().apply {
             repeatMode = Player.REPEAT_MODE_ONE
         }
     }
     LaunchedEffect(url) {
-        Napier.d("URL $url")
+        logger.d { "Playing: $url" }
         val mediaItem = MediaItem.fromUri(url)
         currentExoPlayer.setMediaItem(mediaItem)
         currentExoPlayer.prepare()
@@ -42,7 +53,7 @@ actual fun VideoPlayer(
 
     DisposableEffect(Unit) {
         onDispose {
-            Napier.d("DisposableEffect")
+            logger.d { "Disposing of player" }
             currentExoPlayer.release()
         }
     }

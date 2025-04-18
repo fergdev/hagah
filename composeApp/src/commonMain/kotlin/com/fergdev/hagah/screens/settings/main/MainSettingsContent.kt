@@ -14,7 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.fergdev.fcommon.ui.Spacer
+import com.fergdev.fcommon.ui.layouts.Spacer
 import com.fergdev.fcommon.ui.widgets.FiveWaySwipeableScreenScope
 import com.fergdev.fcommon.ui.widgets.NumberIncrement
 import com.fergdev.hagah.screens.settings.SettingsViewModel

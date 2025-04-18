@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 
@@ -12,15 +14,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        // TODO: https://issuetracker.google.com/issues/298296168
-//        window.setFlags(FLAG_LAYOUT_NO_LIMITS, FLAG_LAYOUT_NO_LIMITS)
         WindowCompat.getInsetsController(window, window.decorView)
             .isAppearanceLightStatusBars = false
         loadKoinModules(
             module { single<ComponentActivity> { this@MainActivity } }
         )
-        setContent {
-            App()
+
+        if (Flavor.Release.notEnabled) {
+            Napier.base(DebugAntilog())
         }
+        setContent { App() }
     }
 }

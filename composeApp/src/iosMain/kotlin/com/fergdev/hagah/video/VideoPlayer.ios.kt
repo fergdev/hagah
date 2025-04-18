@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
+import com.fergdev.hagah.logger
 import io.github.aakira.napier.log
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -30,6 +31,7 @@ import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIView
 
 private const val LogTag = "IosVideoPlayer"
+private val logger = logger("IosVideoPlayer")
 
 @OptIn(ExperimentalForeignApi::class)
 @Composable
@@ -52,12 +54,20 @@ actual fun VideoPlayer(
             player = queuePlayer
         }
     }
-    val validUrl = remember(key1 = url) { NSURL.URLWithString(URLString = url) }
+    val validUrl = remember(key1 = url) {
+        logger.d { "PlayerURL $url" }
+        if (url.startsWith("file://")) {
+            NSURL.URLWithString(URLString = url)!!
+        } else {
+            NSURL.fileURLWithPath(url)
+        }
+    }
     // Create AVPlayerItem
     val playerItem = remember(key1 = url) {
         log(tag = LogTag) { "Creating AVPlayerItem with URL: $url" }
-        AVPlayerItem(uRL = validUrl!!)
+        AVPlayerItem(uRL = validUrl)
     }
+
     var previousItem by remember<MutableState<AVPlayerItem?>> { mutableStateOf(null) }
     var previousLooper by remember<MutableState<AVPlayerLooper?>> { mutableStateOf(null) }
     // Create AVPlayerLooper for looping

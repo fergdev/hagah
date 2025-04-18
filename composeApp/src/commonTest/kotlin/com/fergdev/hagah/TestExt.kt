@@ -1,6 +1,5 @@
 package com.fergdev.hagah
 
-import app.cash.turbine.ReceiveTurbine
 import io.kotest.assertions.withClue
 import io.kotest.common.ExperimentalKotest
 import io.kotest.core.spec.Spec
@@ -24,12 +23,6 @@ fun FreeSpecTerminalScope.idle() = testCoroutineScheduler.advanceUntilIdle()
 
 val TestScope.testDispatcher: CoroutineDispatcher
     get() = coroutineContext[CoroutineDispatcher]!!
-
-suspend fun <T> ReceiveTurbine<T>.awaitAndExpectNoMore(): T {
-    val item = awaitItem()
-    expectNoEvents()
-    return item
-}
 
 infix fun <T> List<T>.shouldBeList(other: List<T>) {
     for (i in this.indices) {

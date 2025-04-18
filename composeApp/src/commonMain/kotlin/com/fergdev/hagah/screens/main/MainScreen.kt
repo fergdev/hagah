@@ -34,9 +34,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.fergdev.fcommon.ui.Spacer
+import com.fergdev.fcommon.ui.PulsingBorderCard
 import com.fergdev.fcommon.ui.TypewriteText
 import com.fergdev.fcommon.ui.blockClicks
+import com.fergdev.fcommon.ui.effects.shimmerEffect
+import com.fergdev.fcommon.ui.layouts.Spacer
 import com.fergdev.fcommon.ui.widgets.FiveWaySwipeableScreenScope
 import com.fergdev.fcommon.ui.widgets.Screen.MAIN
 import com.fergdev.fcommon.util.next
@@ -59,7 +61,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun FiveWaySwipeableScreenScope.MainScreen(
+internal fun FiveWaySwipeableScreenScope.MainContent(
     modifier: Modifier = Modifier
 ) {
     val viewModel = koinViewModel<MainViewModel>()
@@ -76,19 +78,21 @@ internal fun FiveWaySwipeableScreenScope.MainScreen(
 
 @Composable
 private fun ErrorContent(message: String, onClick: () -> Unit) {
-    HCard(
-        modifier = Modifier.clickable(onClick = onClick),
-        horizontalAlignment = CenterHorizontally
-    ) {
-        Text(message)
-        Spacer(height = 8.dp)
-        Text("Retry")
+    PulsingBorderCard(borderColor = MaterialTheme.colorScheme.error) {
+        HCard(
+            modifier = Modifier.clickable(onClick = onClick),
+            horizontalAlignment = CenterHorizontally
+        ) {
+            Text(message)
+            Spacer(height = 8.dp)
+            Text("Retry")
+        }
     }
 }
 
 @Composable
 private fun LoadingContent() {
-    HCard(horizontalAlignment = CenterHorizontally) {
+    HCard(modifier = Modifier.shimmerEffect(), horizontalAlignment = CenterHorizontally) {
         PulsingText(text = "Loading Hagah")
     }
 }

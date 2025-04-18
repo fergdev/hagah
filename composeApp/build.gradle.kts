@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -15,19 +17,8 @@ plugins {
     alias(libs.plugins.kotest)
 }
 
-val isDebug =
-    project.hasProperty("isDebug") or
-        gradle.startParameter.taskNames.any { it.contains("Debug") } or
-        gradle.startParameter.taskNames.any { it.contains("Test") }
-
-val baseUrl =
-    if (isDebug) "http://10.0.2.2:8080" else "https://serene-dedication-production.up.railway.app"
-
-val buildFlavour = if (isDebug) {
-    localProperties().value.flavor().ifEmpty { "debug" }
-} else {
-    "release"
-}
+val flavor = localProperties().value.flavor().ifEmpty { "release" }
+val clean = localProperties().value.clean().takeIf { flavor != "release" } ?: ""
 
 @Language("Kotlin")
 // language=kotlin
@@ -38,8 +29,10 @@ val buildConfig = """
         const val versionName = "${Config.versionName}"
         const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
         const val supportEmail = "${Config.supportEmail}"
-        const val flavorKey = "$buildFlavour"
-        const val baseUrl = "$baseUrl"
+        const val flavorKey = "$flavor"
+        const val cleanOnStart = "$clean"
+        const val localUrl = "http://10.0.2.2:8080"
+        const val prodUrl = "https://serene-dedication-production.up.railway.app"
     }
 """.trimIndent()
 
@@ -118,9 +111,8 @@ kotlin {
     }
 
     sourceSets {
-        val desktopMain by getting
         val desktopTest by getting
-        commonMain {
+        val commonMain by getting {
             compilerOptions {
                 freeCompilerArgs.addAll(Config.compilerArgs)
                 optIn.addAll(Config.appOptIns)
@@ -161,8 +153,6 @@ kotlin {
                 implementation(libs.kstore)
 
                 implementation(libs.kotlinx.datetime)
-                implementation(libs.coil.compose)
-                implementation(libs.coil.svg)
                 implementation(libs.slf4j.nop)
             }
         }
@@ -177,34 +167,48 @@ kotlin {
             implementation(libs.multiplatform.settings.test)
             implementation(libs.turbine)
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.androidx.compose.ui.tooling.preview)
-            implementation(libs.androidx.foundation.layout.android)
-            implementation(libs.androidx.media3.exoplayer)
-            implementation(libs.androidx.media3.ui)
-            implementation(libs.koin.android)
-            implementation(libs.kstore.file)
-            implementation(libs.ktor.client.okhttp)
+
+        val nonWasmMain = create("nonWasmMain") {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kstore.file)
+            }
         }
+
+        val androidMain by getting {
+            dependsOn(nonWasmMain)
+            dependencies {
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.androidx.compose.ui.tooling.preview)
+                implementation(libs.androidx.foundation.layout.android)
+                implementation(libs.androidx.media3.exoplayer)
+                implementation(libs.androidx.media3.ui)
+                implementation(libs.koin.android)
+                implementation(libs.ktor.client.okhttp)
+            }
+        }
+
         androidUnitTest.dependencies {
             implementation(libs.junit)
             implementation(libs.junit.api)
             implementation(libs.junit.engine)
             implementation(libs.kotest.junit)
         }
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.kstore.file)
+
+        val iosMain by getting {
+            dependsOn(nonWasmMain)
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
         }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.ktor.client.apache)
-            implementation(libs.appdirs)
-            implementation(libs.kstore.file)
-            implementation(libs.composemediaplayer)
+        val desktopMain by getting {
+            dependsOn(nonWasmMain)
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutines.swing)
+                implementation(libs.ktor.client.apache)
+                implementation(libs.composemediaplayer)
+            }
         }
         desktopTest.dependencies {
             implementation(libs.kotest.junit)
