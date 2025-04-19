@@ -4,15 +4,22 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,14 +41,15 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.fergdev.fcommon.ui.IButton
 import com.fergdev.fcommon.ui.PulsingBorderCard
-import com.fergdev.fcommon.ui.TypewriteText
-import com.fergdev.fcommon.ui.blockClicks
 import com.fergdev.fcommon.ui.effects.shimmerEffect
 import com.fergdev.fcommon.ui.layouts.Spacer
+import com.fergdev.fcommon.ui.text.italic
 import com.fergdev.fcommon.ui.widgets.FiveWaySwipeableScreenScope
 import com.fergdev.fcommon.ui.widgets.Screen.MAIN
 import com.fergdev.fcommon.util.next
+import com.fergdev.fcommon.util.previous
 import com.fergdev.hagah.screens.main.MainViewModel.State.Error
 import com.fergdev.hagah.screens.main.MainViewModel.State.Loading
 import com.fergdev.hagah.screens.main.MainViewModel.State.Success
@@ -97,62 +105,11 @@ private fun LoadingContent() {
     }
 }
 
-@Composable
-internal fun MeditationTimer(
-    totalTimeMillis: Long,
-    modifier: Modifier = Modifier,
-    onFinish: () -> Unit = {}
-) {
-    var timeLeftSeconds by remember { mutableStateOf(totalTimeMillis) }
-    val progress by remember(timeLeftSeconds) {
-        derivedStateOf { timeLeftSeconds / totalTimeMillis.toFloat() }
-    }
-
-    // Countdown logic
-    LaunchedEffect(Unit) {
-        while (timeLeftSeconds > 0L) {
-            delay(1000L)
-            timeLeftSeconds -= 1L
-        }
-        onFinish()
-    }
-
-    Box(
-        contentAlignment = Center,
-        modifier = modifier.blockClicks()
-    ) {
-        Canvas(modifier = Modifier.size(220.dp).padding(24.dp)) {
-            // Background ring
-            drawCircle(color = Color.White.copy(alpha = 0.1f), style = Stroke(width = 10f))
-            // Progress ring
-            drawArc(
-                color = Color.White.copy(alpha = 0.9f),
-                startAngle = -90f,
-                sweepAngle = 360 * progress,
-                useCenter = false,
-                style = Stroke(width = 10f, cap = StrokeCap.Round)
-            )
-        }
-
-        Text(
-            text = timeLeftSeconds.timeFormatted(),
-            color = Color.White,
-            style = MaterialTheme.typography.headlineLarge
-        )
-    }
-}
-
 private enum class SuccessCards {
-    Date,
-    Verse,
-    Reflection,
-    Prayer,
-    CallToAction,
-    Meditation,
-    GoodBye
+    Date, Verse, Reflection, Prayer, CallToAction, Meditation, GoodBye
 }
 
-private const val SuccessContentAnimationDuration = 300
+private const val SuccessContentAnimationDuration = 1000
 
 @Composable
 private fun FiveWaySwipeableScreenScope.SuccessContent(success: Success) {
@@ -171,22 +128,44 @@ private fun FiveWaySwipeableScreenScope.SuccessContent(success: Success) {
                 }
             }
         }
-        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Center) {
-            AnimatedContent(
-                targetState = currentCard,
-                transitionSpec = {
-                    fadeIn(tween(SuccessContentAnimationDuration)) togetherWith
-                        fadeOut(tween(SuccessContentAnimationDuration))
+        val back: (immediate: Boolean) -> Unit = remember(success) {
+            {
+                    immediate ->
+                coroutineScope.launch {
+                    if (!immediate) {
+                        delay(3000)
+                    }
+                    currentCard = currentCard.previous()
                 }
-            ) {
+            }
+        }
+        AnimatedContent(
+            targetState = currentCard,
+            transitionSpec = {
+                val direction = if (targetState > initialState) 1 else -1
+                slideInHorizontally(
+                    animationSpec = tween(SuccessContentAnimationDuration)
+                ) { fullWidth -> fullWidth * direction } + fadeIn(
+                    animationSpec = tween(SuccessContentAnimationDuration)
+                ) togetherWith
+                    slideOutHorizontally(
+                        animationSpec = tween(SuccessContentAnimationDuration)
+                    ) { fullWidth -> -fullWidth * direction } + fadeOut(
+                        animationSpec = tween(SuccessContentAnimationDuration)
+                    )
+            }
+        ) {
+            Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Center) {
                 when (it) {
                     Date -> HCard {
-                        TypewriteText(
+                        Text(
                             text = success.date,
-                            style = MaterialTheme.typography.titleLarge,
-                            textColor = Color.White,
-                            onTypingFinish = { next(false) }
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Color.White,
                         )
+                        LaunchedEffect(Unit) {
+                            next(false)
+                        }
                     }
 
                     Verse -> {
@@ -194,39 +173,57 @@ private fun FiveWaySwipeableScreenScope.SuccessContent(success: Success) {
                             title = "Verse",
                             subtitle = success.dailyHagah.verse.reference,
                             message = "\"${success.dailyHagah.verse.text}\"",
-                            onNext = next
+                            onNext = next,
+                            onBack = back
                         )
                     }
 
                     Reflection -> SectionCard(
                         title = "Reflection",
                         message = success.dailyHagah.reflection,
-                        onNext = next
+                        onNext = next,
+                        onBack = back
                     )
 
                     Prayer -> SectionCard(
-                        title = "Prayer",
-                        message = success.dailyHagah.prayer,
-                        onNext = next
+                        title = "Prayer", message = success.dailyHagah.prayer, onNext = next,
+                        onBack = back
                     )
 
                     CallToAction -> SectionCard(
                         title = "Call to Action",
                         message = success.dailyHagah.callToAction,
-                        onNext = next
+                        onNext = next,
+                        onBack = back
                     )
 
-                    Meditation -> MeditationTimer(
-                        totalTimeMillis = success.meditationTime,
-                        onFinish = { next(false) }
-                    )
+                    Meditation -> {
+                        MeditationTimer(
+                            totalTimeMillis = success.meditationTime, onFinish = { next(false) }
+                        )
+                    }
 
                     GoodBye -> {
-                        TypewriteText(
-                            modifier = Modifier.padding(16.dp),
-                            text = "May God bless you!",
-                            style = MaterialTheme.typography.titleLarge,
-                        )
+                        HCard(horizontalAlignment = CenterHorizontally) {
+                            val style = MaterialTheme.typography.titleSmall
+                            Text(
+                                text = "Thank you for spending this moment with Hagah.",
+                                style = style,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(height = 24.dp)
+                            Text(
+                                text = "May your heart stay anchored in peace.",
+                                style = style,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(height = 24.dp)
+                            Text(
+                                text = "God bless you!",
+                                style = style,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }
@@ -239,26 +236,82 @@ private fun SectionCard(
     title: String,
     subtitle: String? = null,
     message: String? = null,
-    onNext: (immediate: Boolean) -> Unit = {}
+    onNext: (immediate: Boolean) -> Unit = {},
+    onBack: (immediate: Boolean) -> Unit = {}
 ) {
-    HCard(modifier = Modifier.fillMaxWidth().clickable { onNext(true) }) {
+    HCard(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = CenterHorizontally
+    ) {
         Text(
             textAlign = TextAlign.Center,
-            text = title,
-            style = MaterialTheme.typography.headlineMedium,
+            text = title.uppercase(),
+            style = MaterialTheme.typography.displaySmall,
         )
         Spacer(modifier = Modifier.height(8.dp))
         subtitle?.let {
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.titleLarge.italic()
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
         message?.let {
-            TypewriteText(text = message, style = MaterialTheme.typography.bodyLarge) {
-                onNext(false)
-            }
+            Text(
+                text = message, style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
         }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            IButton(
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                onClick = { onBack(true) }
+            )
+            IButton(
+                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                onClick = { onNext(true) }
+            )
+        }
+    }
+}
+
+@Composable
+internal fun MeditationTimer(
+    totalTimeMillis: Long,
+    onFinish: () -> Unit = {}
+) {
+    var timeLeftSeconds by remember { mutableStateOf(totalTimeMillis) }
+    val progress by remember(timeLeftSeconds) {
+        derivedStateOf { timeLeftSeconds / totalTimeMillis.toFloat() }
+    }
+
+    // Countdown logic
+    LaunchedEffect(Unit) {
+        while (timeLeftSeconds > 0L) {
+            delay(1000L)
+            timeLeftSeconds -= 1L
+        }
+        onFinish()
+    }
+
+    Box(contentAlignment = Center) {
+        Canvas(modifier = Modifier.size(220.dp).padding(24.dp)) {
+            // Background ring
+            drawCircle(color = Color.White.copy(alpha = 0.1f), style = Stroke(width = 10f))
+            // Progress ring
+            drawArc(
+                color = Color.White.copy(alpha = 0.9f),
+                startAngle = -90f,
+                sweepAngle = 360 * progress,
+                useCenter = false,
+                style = Stroke(width = 10f, cap = StrokeCap.Round)
+            )
+        }
+
+        Text(
+            text = timeLeftSeconds.timeFormatted(),
+            color = Color.White,
+            style = MaterialTheme.typography.headlineLarge
+        )
     }
 }

@@ -85,8 +85,9 @@ private fun SuccessContent(
                 PlayableVideoItem(
                     modifier = Modifier.fillMaxWidth(),
                     info = video,
-                    onDelete = { onDelete(video) }
-                ) { onPlay(video) }
+                    onDelete = { onDelete(video) },
+                    onPlay = { onPlay(video) }
+                )
             }
         }
         item {
