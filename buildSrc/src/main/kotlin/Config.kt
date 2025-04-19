@@ -42,8 +42,8 @@ object Config {
     const val privacyPolicyUrl = "TODO"
 
     // Versions
-    val stabilityLevels = listOf("snapshot", "eap", "preview", "alpha", "beta", "m", "cr", "rc")
-    val minStabilityLevel = stabilityLevels.indexOf("beta")
+    val stabilityLevels = listOf("dev", "snapshot", "eap", "preview", "alpha", "beta", "m", "cr", "rc")
+    val minStabilityLevel = stabilityLevels.indexOf("m")
 
     // Args
     val optIns = listOf(

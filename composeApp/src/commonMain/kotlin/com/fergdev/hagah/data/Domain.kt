@@ -1,5 +1,7 @@
 package com.fergdev.hagah.data
 
+import com.fergev.hagah.data.dto.DailyDevotionalDto
+import com.fergev.hagah.data.dto.VerseDto
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -26,4 +28,18 @@ data class Verse(
     val reference: String,
     @SerialName("Text")
     val text: String
+)
+
+internal fun DailyDevotionalDto.toDomain(index: Long = 0L) = DailyHagah(
+    id = index,
+    date = this.date,
+    verse = verseDto.toDomain(),
+    reflection = reflection,
+    callToAction = callToAction,
+    prayer = prayer,
+)
+
+internal fun VerseDto.toDomain() = Verse(
+    reference = reference,
+    text = text
 )

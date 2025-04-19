@@ -113,3 +113,4 @@
 -dontwarn org.slf4j.**
 -dontwarn io.github.oshai.kotlinlogging.logback.**
 -dontwarn com.oracle.svm.**
+-dontwarn io.ktor.network.sockets.SocketBase$attachFor$1

@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 import org.intellij.lang.annotations.Language
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -15,6 +17,9 @@ plugins {
     alias(libs.plugins.kotest)
 }
 
+val flavor = localProperties().value.flavor().ifEmpty { "release" }
+val clean = localProperties().value.clean().takeIf { flavor != "release" } ?: ""
+
 @Language("Kotlin")
 // language=kotlin
 val buildConfig = """
@@ -24,8 +29,10 @@ val buildConfig = """
         const val versionName = "${Config.versionName}"
         const val privacyPolicyUrl = "${Config.privacyPolicyUrl}"
         const val supportEmail = "${Config.supportEmail}"
-        const val apiKey = "${localProperties().value.openApiKey()}"
-        const val mockData = "${localProperties().value.mockData()}"
+        const val flavorKey = "$flavor"
+        const val cleanOnStart = "$clean"
+        const val localUrl = "http://10.0.2.2:8080"
+        const val prodUrl = "https://serene-dedication-production.up.railway.app"
     }
 """.trimIndent()
 
@@ -34,14 +41,13 @@ val generateBuildConfig by tasks.registering(Sync::class) {
         rename { "BuildFlags.kt" }
         into(Config.namespace.replace(".", "/"))
     }
-    // the target directory
     into(layout.buildDirectory.dir("generated/kotlin/src/commonMain"))
 }
+
 kotlin {
     applyDefaultHierarchyTemplate()
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
+    @OptIn(ExperimentalWasmDsl::class) wasmJs {
         outputModuleName = "composeApp"
         browser {
             val rootDirPath = project.rootDir.path
@@ -64,16 +70,14 @@ kotlin {
     jvm("desktop").compilations.all {
         compileTaskProvider.configure {
             compilerOptions {
+                jvmTarget = Config.jvmTarget
                 freeCompilerArgs.addAll(Config.jvmCompilerArgs)
             }
         }
     }
 
     listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-        //noinspection WrongGradleMethod
+        iosX64(), iosArm64(), iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
@@ -107,9 +111,8 @@ kotlin {
     }
 
     sourceSets {
-        val desktopMain by getting
         val desktopTest by getting
-        commonMain {
+        val commonMain by getting {
             compilerOptions {
                 freeCompilerArgs.addAll(Config.compilerArgs)
                 optIn.addAll(Config.appOptIns)
@@ -118,6 +121,7 @@ kotlin {
             kotlin.srcDir(generateBuildConfig.map { it.destinationDir })
             dependencies {
                 implementation(projects.fcommon)
+                implementation(projects.data)
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
@@ -149,14 +153,11 @@ kotlin {
                 implementation(libs.kstore)
 
                 implementation(libs.kotlinx.datetime)
-                implementation(libs.coil.compose)
-                implementation(libs.coil.svg)
                 implementation(libs.slf4j.nop)
             }
         }
         commonTest.dependencies {
-            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-            implementation(compose.uiTest)
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class) implementation(compose.uiTest)
             implementation(libs.koin.test)
             implementation(libs.kotest)
             implementation(libs.kotest.assertions.core)
@@ -166,34 +167,48 @@ kotlin {
             implementation(libs.multiplatform.settings.test)
             implementation(libs.turbine)
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.androidx.compose.ui.tooling.preview)
-            implementation(libs.androidx.foundation.layout.android)
-            implementation(libs.androidx.media3.exoplayer)
-            implementation(libs.androidx.media3.ui)
-            implementation(libs.koin.android)
-            implementation(libs.kstore.file)
-            implementation(libs.ktor.client.okhttp)
+
+        val nonWasmMain = create("nonWasmMain") {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kstore.file)
+            }
         }
+
+        val androidMain by getting {
+            dependsOn(nonWasmMain)
+            dependencies {
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.androidx.compose.ui.tooling.preview)
+                implementation(libs.androidx.foundation.layout.android)
+                implementation(libs.androidx.media3.exoplayer)
+                implementation(libs.androidx.media3.ui)
+                implementation(libs.koin.android)
+                implementation(libs.ktor.client.okhttp)
+            }
+        }
+
         androidUnitTest.dependencies {
             implementation(libs.junit)
             implementation(libs.junit.api)
             implementation(libs.junit.engine)
             implementation(libs.kotest.junit)
         }
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.kstore.file)
+
+        val iosMain by getting {
+            dependsOn(nonWasmMain)
+            dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
         }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.ktor.client.apache)
-            implementation(libs.appdirs)
-            implementation(libs.kstore.file)
-            implementation(libs.composemediaplayer)
+        val desktopMain by getting {
+            dependsOn(nonWasmMain)
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutines.swing)
+                implementation(libs.ktor.client.apache)
+                implementation(libs.composemediaplayer)
+            }
         }
         desktopTest.dependencies {
             implementation(libs.kotest.junit)
@@ -252,8 +267,7 @@ android {
             isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
         }
@@ -302,7 +316,7 @@ compose {
                 val iconDir = rootProject.rootDir.resolve("playstore")
 
                 macOS {
-                    packageName = Config.appName
+                    packageName = Config.namespace
                     dockName = Config.appName
                     setDockNameSameAsPackageName = false
                     bundleID = Config.namespace
@@ -326,9 +340,6 @@ compose {
         }
     }
 }
-
-tasks.withType<JavaExec>().named { it == "composeApp:desktopRun" }
-    .configureEach { mainClass = Config.mainClass }
 
 junitPlatform {
     instrumentationTests.enabled = false

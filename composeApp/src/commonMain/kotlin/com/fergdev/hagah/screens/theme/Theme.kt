@@ -7,6 +7,7 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 private val lightScheme = lightColorScheme(
@@ -22,8 +23,7 @@ private val lightScheme = lightColorScheme(
     onTertiary = onTertiaryLight,
     tertiaryContainer = tertiaryContainerLight,
     onTertiaryContainer = onTertiaryContainerLight,
-    error = errorLight,
-    onError = onErrorLight,
+    error = Color(0xFFB00020),
     errorContainer = errorContainerLight,
     onErrorContainer = onErrorContainerLight,
     background = backgroundLight,

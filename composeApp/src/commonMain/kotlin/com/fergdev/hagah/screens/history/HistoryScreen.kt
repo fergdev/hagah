@@ -27,8 +27,8 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.fergdev.fcommon.ui.Spacer
 import com.fergdev.fcommon.ui.conditional
+import com.fergdev.fcommon.ui.layouts.Spacer
 import com.fergdev.hagah.screens.history.HistoryDay.Blank
 import com.fergdev.hagah.screens.history.HistoryDay.Future
 import com.fergdev.hagah.screens.history.HistoryDay.HasHistory

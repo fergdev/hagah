@@ -5,19 +5,9 @@ package com.fergdev.hagah
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.CanvasBasedWindow
-import com.fergdev.hagah.data.DailyHagah
-import com.fergdev.hagah.data.storage.StorageKey
 import com.fergdev.hagah.di.startKoin
 import io.github.kdroidfilter.composemediaplayer.htmlinterop.LocalLayerContainer
-import io.github.xxfast.kstore.storage.storeOf
 import kotlinx.browser.document
-import org.koin.dsl.module
-
-val wasmModule = module {
-    single {
-        storeOf<List<DailyHagah>>(key = StorageKey, default = emptyList())
-    }
-}
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
@@ -25,7 +15,7 @@ fun main() {
         canvasElementId = "ComposeTarget",
         title = BuildFlags.appName,
     ) {
-        startKoin(modules = listOf(wasmModule))
+        startKoin()
         CompositionLocalProvider(LocalLayerContainer provides document.body!!) {
             App()
         }

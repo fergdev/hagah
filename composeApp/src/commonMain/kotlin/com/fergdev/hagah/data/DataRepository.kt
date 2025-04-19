@@ -7,8 +7,7 @@ import com.fergdev.hagah.data.DataRepository.Error
 import com.fergdev.hagah.data.DataRepository.Error.NotFound
 import com.fergdev.hagah.data.MockHagah.generateMockList
 import com.fergdev.hagah.data.api.DailyDevotionalApi
-import com.fergdev.hagah.data.api.toDomain
-import com.fergdev.hagah.data.storage.DailyDevotionalStorage
+import com.fergdev.hagah.data.storage.HagahStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -37,28 +36,28 @@ internal interface DataRepository {
 
 internal class DataRepositoryImpl(
     private val dailyDevotionalApi: DailyDevotionalApi,
-    private val dailyDevotionalStorage: DailyDevotionalStorage,
+    private val hagahStorage: HagahStorage,
     private val clock: Clock
 ) : DataRepository {
     private val _lookBackDevotional = MutableSharedFlow<Either<NotFound, DailyHagah>>()
     override val lookBackHagah = _lookBackDevotional
 
-    override suspend fun history() = dailyDevotionalStorage.history()
+    override suspend fun history() = hagahStorage.history()
 
     override suspend fun setLookBackHagah(id: Long) {
         _lookBackDevotional.emit(
-            dailyDevotionalStorage.getHagah(id).mapLeft { NotFound }
+            hagahStorage.getHagah(id).mapLeft { NotFound }
         )
     }
 
     override suspend fun requestDailyHagah() =
-        dailyDevotionalStorage.history()
+        hagahStorage.history()
             .first()
             .firstOrNull { it.date == clock.nowDate() }
             ?.right()
             ?: dailyDevotionalApi.requestHagah()
                 .map { it.toDomain() }
-                .onRight { dailyDevotionalStorage.addDevotional(it) }
+                .onRight { hagahStorage.addDevotional(it) }
                 .mapLeft {
                     when (it) {
                         is DailyDevotionalApi.Error.Server -> Error.Server

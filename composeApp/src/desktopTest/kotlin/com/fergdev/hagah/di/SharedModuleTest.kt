@@ -2,6 +2,9 @@ package com.fergdev.hagah.di
 
 import com.fergdev.hagah.data.api.DailyDevotionalApi
 import com.fergdev.hagah.data.api.DailyDevotionalApiImpl
+import com.fergdev.hagah.data.storage.HagahStoreWrapper
+import com.fergdev.hagah.data.video.VideoDownloader
+import com.fergdev.hagah.data.video.VideoStoreWrapper
 import io.github.xxfast.kstore.KStore
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -28,7 +31,10 @@ class SharedModuleTest : FreeSpec({
             extraTypes = listOf(
                 HttpClientConfig::class,
                 HttpClientEngine::class,
-                KStore::class
+                KStore::class,
+                HagahStoreWrapper::class,
+                VideoStoreWrapper::class,
+                VideoDownloader::class
             )
         )
     }
