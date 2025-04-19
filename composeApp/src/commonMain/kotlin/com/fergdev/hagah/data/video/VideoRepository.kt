@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -29,7 +30,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import kotlin.coroutines.EmptyCoroutineContext
 
 internal interface VideoRepository {
-    val playingVideo: Flow<Either<NotFound, VideoInfo.PlayableVideoInfo>>
+    val playingVideo: Flow<VideoInfo.PlayableVideoInfo>
     val allVideos: StateFlow<List<VideoInfo>>
     suspend fun playVideo(id: String): Either<NotFound, Unit>
     suspend fun downloadVideo(id: String): Either<DownloadError, String>
@@ -88,10 +89,11 @@ internal class VideoRepositoryImpl(
             )
         ),
     )
+
     init {
         scope.launch {
             if (Flavor.current.clean) {
-                settings.putString(KeyCurrentVideo, appVideos.first().videoManifest.filename)
+                settings.putString(KeyCurrentVideo, appVideos.first().id())
             }
             combine(
                 videoStorage.storedVideos(), flowOf(videoApi.fetchManifest())
@@ -113,15 +115,17 @@ internal class VideoRepositoryImpl(
         }
     }
 
-    private val _currentVideo: Flow<Either<NotFound, VideoInfo.PlayableVideoInfo>> =
+    private val _currentVideo: Flow<VideoInfo.PlayableVideoInfo> =
         settings.getStringOrNullFlow(KeyCurrentVideo)
-            .onEach { logger.d { "Current video: $it" } }
-            .map { settingsVideoId ->
-                getVideoInfo<VideoInfo.PlayableVideoInfo>(settingsVideoId)
+            .distinctUntilChanged()
+            .onEach { logger.d { "Current video key: $it" } }
+            .map { videoToPlayId ->
+                videoStorage.storedVideos().first()
+                    .find { it.id() == videoToPlayId }
+                    ?: appVideos.first()
             }
-            .onEach { logger.d { "Current video: $it" } }
 
-    override val playingVideo: Flow<Either<NotFound, VideoInfo.PlayableVideoInfo>> = _currentVideo
+    override val playingVideo: Flow<VideoInfo.PlayableVideoInfo> = _currentVideo
 
     private val _allVideos = MutableStateFlow<List<VideoInfo>>(appVideos)
     override val allVideos: StateFlow<List<VideoInfo>> = _allVideos
@@ -129,8 +133,10 @@ internal class VideoRepositoryImpl(
     override suspend fun playVideo(id: String) =
         getVideoInfo<VideoInfo.PlayableVideoInfo>(id)
             .map { videoInfo ->
-                settings.putString(KeyCurrentVideo, videoInfo.videoManifest.filename)
+                logger.d { "putting video $id" }
+                settings.putString(KeyCurrentVideo, videoInfo.id())
             }
+            .onLeft { logger.e { "Not setting video $id not found" } }
 
     override suspend fun downloadVideo(id: String) =
         getVideoInfo<DownloadableVideoInfo>(id)

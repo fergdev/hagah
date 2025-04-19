@@ -62,7 +62,7 @@ internal fun videoHttpClient(): HttpClient = HttpClient {
 internal class VideoApiImpl : VideoApi {
     private val client = videoHttpClient()
     private val logger = logger("VideoApi")
-    private val rootUrl = "https://github.com/fergdev/hagah/releases/download/v1.0.0/"
+    private val rootUrl = "https://github.com/fergdev/hagah/releases/download/v1.0.0"
     private val manifestUrl = "$rootUrl/manifest.json"
 
     override suspend fun fetchManifest() = Either.catch {

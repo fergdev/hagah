@@ -32,7 +32,7 @@ public fun TypewriteText(
         easing = LinearEasing
     ),
     style: TextStyle = LocalTextStyle.current,
-    textColor: Color = LocalContentColor.current,
+    color: Color = LocalContentColor.current,
     preoccupySpace: Boolean = true,
     onTypingFinish: () -> Unit = {},
 ) {
@@ -97,7 +97,7 @@ public fun TypewriteText(
         Text(
             text = textToAnimate.substring(0, index.value),
             style = style,
-            color = textColor
+            color = color
         )
     }
 }

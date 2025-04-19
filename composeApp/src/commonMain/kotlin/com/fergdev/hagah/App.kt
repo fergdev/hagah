@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +22,7 @@ import com.fergdev.fcommon.ui.widgets.Screen.LEFT
 import com.fergdev.fcommon.ui.widgets.Screen.MAIN
 import com.fergdev.fcommon.ui.widgets.Screen.RIGHT
 import com.fergdev.fcommon.ui.widgets.Screen.UP
+import com.fergdev.hagah.data.video.VideoInfo
 import com.fergdev.hagah.data.video.VideoRepository
 import com.fergdev.hagah.screens.history.HistoryScreen
 import com.fergdev.hagah.screens.main.MainContent
@@ -68,38 +67,16 @@ private fun Modifier.gradient(screen: Screen): Modifier =
         MAIN -> this
     }
 
-private sealed interface BackGroundState {
-    data object Loading : BackGroundState
-    data class Video(val url: String) : BackGroundState
-    data object NotFound : BackGroundState
-}
-
 @Composable
 private fun AppBackground() {
     val videoRepository = koinInject<VideoRepository>()
-    var videoInfo by remember { mutableStateOf<BackGroundState>(BackGroundState.Loading) }
+    var videoInfo by remember { mutableStateOf<VideoInfo.PlayableVideoInfo?>(null) }
     LaunchedEffect(Unit) {
         videoRepository.playingVideo.collect { playingVideo ->
-            videoInfo = playingVideo.fold(ifLeft = {
-                BackGroundState.NotFound
-            }, ifRight = {
-                BackGroundState.Video(it.playPath())
-            })
+            videoInfo = playingVideo
         }
     }
-    when (val state = videoInfo) {
-        BackGroundState.Loading -> {
-            Surface(modifier = Modifier.fillMaxSize()) {
-                Text("Loading")
-            }
-        }
-
-        BackGroundState.NotFound -> {
-            Surface(modifier = Modifier.fillMaxSize()) {
-                Text("Video not found")
-            }
-        }
-
-        is BackGroundState.Video -> VideoPlayer(modifier = Modifier.fillMaxSize(), url = state.url)
+    videoInfo?.let {
+        VideoPlayer(modifier = Modifier.fillMaxSize(), url = it.playPath())
     }
 }

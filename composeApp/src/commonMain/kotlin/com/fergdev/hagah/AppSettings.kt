@@ -2,8 +2,11 @@ package com.fergdev.hagah
 
 import com.fergdev.hagah.AppSettingsManager.AppSettings
 import com.russhwolf.settings.coroutines.FlowSettings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
 private const val Prefix = "App:"
 private const val KeySeenIntro = "${Prefix}SeenFirstIntro"
@@ -23,6 +26,17 @@ internal interface AppSettingsManager {
 }
 
 internal class AppSettingsMangerImpl(private val flowSettings: FlowSettings) : AppSettingsManager {
+
+    private val scope = CoroutineScope(Dispatchers.Main)
+
+    init {
+        if (Flavor.current.clean) {
+            scope.launch {
+                flowSettings.clear()
+            }
+        }
+    }
+
     private val meditationDuration =
         flowSettings.getLongFlow(KeyMeditationDuration, DefaultMeditationDuration)
     private val seenIntro =
