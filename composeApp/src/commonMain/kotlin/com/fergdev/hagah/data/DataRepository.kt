@@ -13,13 +13,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit.Companion.DAY
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import kotlin.random.Random
+import kotlin.time.ExperimentalTime
 
 internal interface DataRepository {
     sealed interface Error {
@@ -34,10 +34,11 @@ internal interface DataRepository {
     val lookBackHagah: Flow<Either<Error, DailyHagah>>
 }
 
-internal class DataRepositoryImpl(
+@OptIn(ExperimentalTime::class)
+internal class DataRepositoryImpl @OptIn(ExperimentalTime::class) constructor(
     private val dailyDevotionalApi: DailyDevotionalApi,
     private val hagahStorage: HagahStorage,
-    private val clock: Clock
+    private val clock: kotlin.time.Clock
 ) : DataRepository {
     private val _lookBackDevotional = MutableSharedFlow<Either<NotFound, DailyHagah>>()
     override val lookBackHagah = _lookBackDevotional
@@ -82,12 +83,13 @@ internal class DataRepositoryMockImpl : DataRepository {
     }
 }
 
+@OptIn(ExperimentalTime::class)
 private object MockHagah {
-    private val random = Random(Clock.System.now().toEpochMilliseconds())
+    private val random = Random(kotlin.time.Clock.System.now().toEpochMilliseconds())
 
     fun generateRandomDailyDevotional(
         index: Long = random.nextLong(),
-        now: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        now: LocalDate = kotlin.time.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
     ) =
         DailyHagah(
             id = index,
@@ -217,7 +219,7 @@ private object MockHagah {
     }
 
     fun generateMockList(count: Int): List<DailyHagah> {
-        var now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        var now = kotlin.time.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
         return List(count) {
             generateRandomDailyDevotional(now = now).apply { now = now.minus(2, DAY) }
         }

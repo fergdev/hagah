@@ -16,10 +16,11 @@ import com.fergdev.hagah.screens.history.HistoryDay.NoHistory
 import com.fergdev.hagah.screens.history.HistoryState.Loaded
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 internal sealed interface HistoryState {
     data object Loading : HistoryState
@@ -57,7 +58,7 @@ internal sealed interface HistoryDay {
     data class NoHistory(override val dayOfMonth: Int) : HistoryDay
 }
 
-internal class HistoryViewModel(
+internal class HistoryViewModel @OptIn(ExperimentalTime::class) constructor(
     private val repository: DataRepository,
     private val clock: Clock,
     dispatcher: CoroutineDispatcher = Dispatchers.Main
@@ -79,6 +80,7 @@ internal class HistoryViewModel(
         launch { repository.setLookBackHagah(day.id) }
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun createHistory(history: List<DailyHagah>): HistoryState {
         if (history.isEmpty()) {
             return HistoryState.Empty

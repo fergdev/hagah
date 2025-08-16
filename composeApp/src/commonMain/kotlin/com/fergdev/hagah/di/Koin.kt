@@ -10,7 +10,6 @@ import com.russhwolf.settings.coroutines.toFlowSettings
 import com.russhwolf.settings.observable.makeObservable
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
-import kotlinx.datetime.Clock
 import org.koin.core.KoinApplication
 import org.koin.core.logger.Level
 import org.koin.core.logger.Logger
@@ -20,6 +19,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import kotlin.time.ExperimentalTime
 
 internal class BrowserLogger(level: Level) : Logger(level) {
     override fun display(level: Level, msg: MESSAGE) {
@@ -38,11 +38,12 @@ internal inline fun startKoin(
     createEagerInstances()
 }
 
+@OptIn(ExperimentalTime::class)
 val sharedModule = module {
     includes(platformModule)
     includes(dataModule)
     includes(viewModelModule)
-    single<Clock> { Clock.System }
+    single<kotlin.time.Clock> { kotlin.time.Clock.System }
     single<FlowSettings> {
         Settings()
             .makeObservable()

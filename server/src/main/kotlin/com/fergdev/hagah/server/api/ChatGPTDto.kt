@@ -2,11 +2,12 @@ package com.fergdev.hagah.server.api
 
 import com.fergev.hagah.data.dto.DailyDevotionalDto
 import com.fergev.hagah.data.dto.VerseDto
-import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @Serializable
 internal data class ChatGPTRequest(
@@ -60,6 +61,7 @@ internal data class ChatGPTVerseDto(
     val text: String
 )
 
+@OptIn(ExperimentalTime::class)
 internal fun ChatGPTDailyDevotionalWrapper.toDailyDevotionalDto(): DailyDevotionalDto =
     DailyDevotionalDto(
         date = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,

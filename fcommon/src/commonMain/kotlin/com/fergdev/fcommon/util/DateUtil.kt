@@ -1,27 +1,30 @@
 package com.fergdev.fcommon.util
 
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 public fun LocalDate.formatToMonthAndYear(): String = "${month.name}, ${this.year}"
 
-public fun LocalDate.formatToDayMonthAndYear(): String = "${this.dayOfMonth} ${month.name}, ${this.year}"
+public fun LocalDate.formatToDayMonthAndYear(): String =
+    "${this.dayOfMonth} ${month.name}, ${this.year}"
 
 public fun LocalDate.clone(
     year: Int = this.year,
     month: Month = this.month,
-    dayOfMonth: Int = this.dayOfMonth,
-) = LocalDate(year = year, month = month, dayOfMonth = dayOfMonth)
+    day: Int = this.day,
+): LocalDate = LocalDate(year = year, month = month, day = day)
 
-public fun LocalDate.startOfMonth() = this.clone(dayOfMonth = 1)
+public fun LocalDate.startOfMonth(): LocalDate = this.clone(day = 1)
 
 @Suppress("unused")
 public fun LocalDate.startOfWeek(firstDayOfWeek: DayOfWeek = DayOfWeek.MONDAY): LocalDate {
@@ -40,5 +43,9 @@ public fun LocalDate.endOfMonth(): LocalDate {
     return end
 }
 
-public fun Clock.nowDateTime() = now().toLocalDateTime(TimeZone.currentSystemDefault())
-public fun Clock.nowDate() = now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+@OptIn(ExperimentalTime::class)
+public fun Clock.nowDateTime(): LocalDateTime =
+    now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+@OptIn(ExperimentalTime::class)
+public fun Clock.nowDate(): LocalDate = now().toLocalDateTime(TimeZone.currentSystemDefault()).date

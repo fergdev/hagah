@@ -9,7 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 val viewModelModule = module {
     single { Dispatchers.Main }.bind<CoroutineDispatcher>()
     factoryOf(::MainViewModel)

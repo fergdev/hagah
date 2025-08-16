@@ -50,6 +50,7 @@ kotlin {
             isStatic = true
         }
     }
+
     sourceSets {
         val desktopMain by getting
         commonMain {

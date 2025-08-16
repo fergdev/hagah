@@ -20,7 +20,7 @@ kotlin {
         }
     }
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -47,16 +47,16 @@ dependencies {
     implementation(serverLibs.ktor.server.core)
     implementation(serverLibs.ktor.server.netty)
     implementation(libs.arrow.core)
-    implementation("org.ktorm:ktorm-core:3.6.0")
-    implementation("org.xerial:sqlite-jdbc:3.42.0.0")
-    implementation("org.kodein.di:kodein-di:7.20.2")
-    implementation("org.kodein.di:kodein-di-framework-ktor-server-jvm:7.20.2")
-    implementation("io.ktor:ktor-server-content-negotiation:2.3.6")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.6")
-    implementation("io.ktor:ktor-client-cio:3.1.2")
-    implementation("io.ktor:ktor-network-tls-certificates:3.1.2")
-    implementation("io.ktor:ktor-server-netty:3.1.2")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
+    implementation(libs.ktorm.core)
+    implementation(libs.sqlite.jdbc)
+    implementation(libs.kodein.di)
+    implementation(libs.kodein.di.framework.ktor.server.jvm)
+    implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json.v236)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.network.tls.certificates)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.dotenv.kotlin)
 
     testImplementation(serverLibs.kotlin.test.junit)
 }
