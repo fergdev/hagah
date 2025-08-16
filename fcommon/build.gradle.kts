@@ -50,6 +50,7 @@ kotlin {
             isStatic = true
         }
     }
+
     sourceSets {
         val desktopMain by getting
         commonMain {
@@ -78,8 +79,8 @@ kotlin {
         desktopMain.dependencies {
             implementation(fLibs.kotlin.coroutines.swing)
         }
-//        wasmJs {
-//        }
+        wasmJs {
+        }
     }
     sourceSets.apply {
         all {

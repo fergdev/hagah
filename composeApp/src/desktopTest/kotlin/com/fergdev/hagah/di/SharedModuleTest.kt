@@ -11,15 +11,16 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine
-import kotlinx.datetime.Clock
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.context.stopKoin
 import org.koin.mp.KoinPlatform
 import org.koin.test.verify.definition
 import org.koin.test.verify.injectedParameters
 import org.koin.test.verify.verify
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
-@OptIn(KoinExperimentalAPI::class)
+@OptIn(KoinExperimentalAPI::class, ExperimentalTime::class)
 class SharedModuleTest : FreeSpec({
     "shared module verify" {
         sharedModule.verify(

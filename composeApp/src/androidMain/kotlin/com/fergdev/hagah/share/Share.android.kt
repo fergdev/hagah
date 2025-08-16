@@ -17,12 +17,14 @@ import androidx.core.graphics.createBitmap
 import com.fergdev.fcommon.util.nowDateTime
 import com.fergdev.hagah.BuildFlags
 import io.github.aakira.napier.Napier
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.io.IOException
 import org.koin.mp.KoinPlatform
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 actual fun share(bitmap: ImageBitmap) {
     val context = KoinPlatform.getKoin().inject<ComponentActivity>().value
     val time = Clock.System.nowDateTime().format(LocalDateTime.Formats.ISO)

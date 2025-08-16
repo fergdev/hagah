@@ -1,40 +1,46 @@
 [versions]
-aboutLibs = "12.0.0-b03"
-agp = "8.10.0-rc02"
-androidJunit5Plugin = "1.12.0.0"
+aboutLibs = "12.2.4"
+agp = "8.12.0"
+androidJunit5Plugin = "1.13.1.0"
 androidx-activityCompose = "1.10.1"
-androidx-core = "1.6.1"
-androidx-ui-tooling = "1.8.0-rc03"
-appdirs = "1.2.0"
-arrow = "2.0.1"
-coil = "3.1.0"
-compose-multiplatform = "1.7.3"
+androidx-core = "1.7.0"
+androidx-ui-tooling = "1.9.0"
+appdirs = "2.0.0"
+arrow = "2.1.2"
+coil = "3.3.0"
+compose-multiplatform = "1.8.2"
 composeDetektPlugin = "1.4.0"
-composemediaplayer = "0.6.3"
+composemediaplayer = "0.8.1"
 compottie = "2.0.0-rc04"
 desugar_jdk_libs = "2.1.5"
 detekt = "1.23.8"
-exoplayer = "1.6.1"
-foundationLayoutAndroid = "1.8.0-rc03"
-gradleDoctorPlugin = "0.10.0"
-junit = "5.13.0-M2"
-koin = "4.0.4"
+dotenvKotlin = "6.5.1"
+exoplayer = "1.8.0"
+foundationLayoutAndroid = "1.9.0"
+gradleDoctorPlugin = "0.11.0"
+junit = "5.13.4"
+kodeinDi = "7.26.1"
+kodeinDiFrameworkKtorServerJvm = "7.26.1"
+koin = "4.1.0"
 kotest = "6.0.0.M3"
-kotlin = "2.1.20"
-kotlinStdlib = "2.1.20"
+kotlin = "2.2.20-Beta2"
+kotlinStdlib = "2.2.20-Beta2"
 kotlinx-coroutines = "1.10.2"
-kotlinx-datetime = "0.6.2"
-kotlinxBrowserWasmJs = "0.3"
+kotlinx-datetime = "0.7.1"
+kotlinxBrowserWasmJs = "0.5.0"
 kover = "0.9.1"
-kstore = "0.9.1"
-ktor = "3.1.2"
-mokkery = "2.7.2"
+kstore = "1.0.0"
+ktor = "3.2.3"
+ktormCore = "4.1.1"
+ktorSerializationKotlinxJson = "3.2.3"
+mokkery = "3.0.0-Beta1"
 multiplatformSettings = "1.3.0"
 napier = "2.7.1"
-navigationCompose = "2.8.0-alpha08"
-runner = "1.6.2"
+navigationCompose = "2.8.0-alpha13"
+runner = "1.7.0"
 slf4jNop = "2.0.17"
-turbine = "1.2.0"
+sqliteJdbc = "3.50.3.0"
+turbine = "1.2.1"
 versionCatalogUpdatePlugin = "1.0.0"
 
 [libraries]
@@ -62,9 +68,12 @@ detekt-compose = { module = "ru.kode:detekt-rules-compose", version.ref = "compo
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detekt-gradle = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 detekt-libraries = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries", version.ref = "detekt" }
+dotenv-kotlin = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenvKotlin" }
 junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+kodein-di-framework-ktor-server-jvm = { module = "org.kodein.di:kodein-di-framework-ktor-server-jvm", version.ref = "kodeinDiFrameworkKtorServerJvm" }
+kodein-di = { module = "org.kodein.di:kodein-di", version.ref = "kodeinDi" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -83,6 +92,7 @@ kstore = { module = "io.github.xxfast:kstore", version.ref = "kstore" }
 kstore-file = { module = "io.github.xxfast:kstore-file", version.ref = "kstore" }
 kstore-storage = { module = "io.github.xxfast:kstore-storage", version.ref = "kstore" }
 ktor-client-apache = { module = "io.ktor:ktor-client-apache5", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
@@ -91,6 +101,12 @@ ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "k
 ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-network-tls-certificates = { module = "io.ktor:ktor-network-tls-certificates", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor-serialization-kotlinx-json-v236 = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktorm-core = { module = "org.ktorm:ktorm-core", version.ref = "ktormCore" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbc" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
 multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatformSettings" }
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }

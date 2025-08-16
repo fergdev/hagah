@@ -28,6 +28,7 @@ dependencyResolutionManagement {
         }
         mavenCentral()
         maven("https://jitpack.io")
+        maven("https://oss.sonatype.org/content/repositories/releases")  // For release versions
     }
     versionCatalogs {
         create("fLibs") {

@@ -74,7 +74,7 @@ internal class VideoSelectionViewModel(
                     val downloadingState = downloadingState[info.id()]
                     val isDownloading = downloadingState is DownLoading
                     val isHighLighted = downloadingState is DownloadState.Success
-                    val isPlaying = playingVideo.getOrNull() == info
+                    val isPlaying = playingVideo == info
                     val size = if (info is VideoInfo.AppVideoInfo) {
                         "Bundled with app"
                     } else {

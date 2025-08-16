@@ -114,3 +114,6 @@
 -dontwarn io.github.oshai.kotlinlogging.logback.**
 -dontwarn com.oracle.svm.**
 -dontwarn io.ktor.network.sockets.SocketBase$attachFor$1
+
+-dontwarn androidx.lifecycle.AbstractSavedStateViewModelFactory
+-dontwarn androidx.savedstate.SavedStateRegistryController

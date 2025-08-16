@@ -17,7 +17,9 @@ import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 val dataModule = module {
     single<HttpClient> { httpClient() }.bind<HttpClient>()
     singleOf(::DailyDevotionalApiImpl).bind<DailyDevotionalApi>()

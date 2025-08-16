@@ -55,7 +55,7 @@ public fun Modifier.fadingEdge(
     fadingEdge: FadingEdge,
     size: Dp,
     rtlAware: Boolean = false,
-) = composed {
+): Modifier = composed {
     val direction = LocalLayoutDirection.current
     val invert = direction == LayoutDirection.Rtl && rtlAware
     val edge = when (fadingEdge) {
@@ -91,7 +91,7 @@ public fun Modifier.fadingEdge(
     }
 }
 
-public fun Modifier.blockClicks() = this.clickable(enabled = false) { }
+public fun Modifier.blockClicks(): Modifier = this.clickable(enabled = false) { }
 
 public fun Modifier.repeatingClickable(
     interactionSource: InteractionSource,

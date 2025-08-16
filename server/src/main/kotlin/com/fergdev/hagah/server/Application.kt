@@ -16,10 +16,11 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
-import kotlinx.datetime.Clock
 import org.kodein.di.instance
 import org.kodein.di.ktor.closestDI
 import org.kodein.di.ktor.di
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 private val Port = System.getenv("PORT")?.toIntOrNull() ?: 8080
 private val Host = System.getenv("HOST") ?: "0.0.0.0"
@@ -33,6 +34,7 @@ fun main() {
     ).start(wait = true)
 }
 
+@OptIn(ExperimentalTime::class)
 fun Application.module() {
     install(ContentNegotiation) { json() }
     di { import(serverModule) }
