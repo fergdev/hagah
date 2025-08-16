@@ -79,8 +79,8 @@ kotlin {
         desktopMain.dependencies {
             implementation(fLibs.kotlin.coroutines.swing)
         }
-//        wasmJs {
-//        }
+        wasmJs {
+        }
     }
     sourceSets.apply {
         all {
