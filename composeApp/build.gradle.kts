@@ -13,8 +13,8 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.kover)
-    alias(libs.plugins.mokkery)
-    alias(libs.plugins.kotest)
+//    alias(libs.plugins.mokkery)
+//    alias(libs.plugins.kotest)
 }
 
 val flavor = localProperties().value.flavor().ifEmpty { "release" }
@@ -211,10 +211,10 @@ kotlin {
                 implementation(libs.composemediaplayer)
             }
         }
-        desktopTest.dependencies {
-            implementation(libs.kotest.junit)
-            implementation(libs.koin.test)
-        }
+//        desktopTest.dependencies {
+//            implementation(libs.kotest.junit)
+//            implementation(libs.koin.test)
+//        }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
             implementation(libs.kstore.storage)

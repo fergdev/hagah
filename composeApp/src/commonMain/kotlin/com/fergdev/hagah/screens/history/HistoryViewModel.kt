@@ -102,24 +102,24 @@ internal class HistoryViewModel @OptIn(ExperimentalTime::class) constructor(
                     val historyItem = sortedHistory.firstOrNull { monthIndex == it.date }
                     monthDays.add(
                         when (historyItem) {
-                            null -> NoHistory(dayOfMonth = monthIndex.dayOfMonth)
+                            null -> NoHistory(dayOfMonth = monthIndex.day)
                             else -> {
                                 HasHistory(
-                                    dayOfMonth = monthIndex.dayOfMonth,
+                                    dayOfMonth = monthIndex.day,
                                     id = historyItem.id
                                 )
                             }
                         }
                     )
                 } else {
-                    monthDays.add(Future(monthIndex.dayOfMonth))
+                    monthDays.add(Future(monthIndex.day))
                 }
                 monthIndex = monthIndex.plus(1, DateTimeUnit.DAY)
             }
             // Pad the list with blank days before the first day of the month
             var endOfWeekIndex = dateIndex.endOfWeek()
             while (endOfWeekIndex > dateIndex) {
-                monthDays.add(Blank(dayOfMonth = endOfWeekIndex.dayOfMonth))
+                monthDays.add(Blank(dayOfMonth = endOfWeekIndex.day))
                 endOfWeekIndex = endOfWeekIndex.minus(1, DateTimeUnit.DAY)
             }
 
