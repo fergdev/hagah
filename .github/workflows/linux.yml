@@ -17,7 +17,7 @@ jobs:
         with:
           distribution: 'zulu'
           check-latest: true
-          java-version: 17
+          java-version: 21
           cache: 'gradle'
 
       - name: Set local.properties
