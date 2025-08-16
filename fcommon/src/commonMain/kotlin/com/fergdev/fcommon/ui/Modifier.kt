@@ -91,7 +91,7 @@ public fun Modifier.fadingEdge(
     }
 }
 
-public fun Modifier.blockClicks() : Modifier = this.clickable(enabled = false) { }
+public fun Modifier.blockClicks(): Modifier = this.clickable(enabled = false) { }
 
 public fun Modifier.repeatingClickable(
     interactionSource: InteractionSource,
