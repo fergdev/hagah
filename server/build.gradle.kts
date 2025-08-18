@@ -20,7 +20,7 @@ kotlin {
         }
     }
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(Config.javaVersion.majorVersion))
     }
 }
 

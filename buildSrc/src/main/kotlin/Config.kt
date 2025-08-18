@@ -14,11 +14,11 @@ object Config {
     const val artifactId = "$group.$artifact"
 
     // Versions
-    const val versionCode = 1
+    const val versionCode = 2
     const val majorRelease = 1
     const val minorRelease = 0
-    const val patch = 0
-    const val postfix = "-beta01" // include dash (-)
+    const val patch = 1
+    const val postfix = "-RC01" // include dash (-)
     const val majorVersionName = "$majorRelease.$minorRelease.$patch"
     const val versionName = "$majorVersionName$postfix"
 
@@ -72,9 +72,10 @@ object Config {
     }
 
     // JVM
-    val jvmTarget = JvmTarget.JVM_21
-    val idePluginJvmTarget = JvmTarget.JVM_21
-    val javaVersion = JavaVersion.VERSION_21
+    val jvmTarget = JvmTarget.JVM_24
+    val idePluginJvmTarget = JvmTarget.JVM_24
+    val javaVersion = JavaVersion.VERSION_24
+    val javaMajorVersion = javaVersion.ordinal + 1
 
     object Detekt {
         const val CONFIG_FILE = "detekt.yml"
