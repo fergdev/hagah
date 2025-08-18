@@ -22,8 +22,8 @@ jobs:
       - name: set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '24'
-          distribution: 'corretto'
+          java-version: 24
+          distribution: 'zulu'
           cache: gradle
 
       - name: Set local.properties

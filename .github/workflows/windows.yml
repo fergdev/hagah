@@ -14,9 +14,9 @@ jobs:
       - name: set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           check-latest: true
-          java-version: 21
+          java-version: 24
           cache: 'gradle'
 
       - name: Set local.properties
