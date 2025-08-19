@@ -11,14 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: publishing
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
       - name: set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          check-latest: true
           java-version: 24
-          cache: 'gradle'
+          check-latest: true
+          distribution: zulu
+          cache: gradle
 
       - name: Set local.properties
         env:

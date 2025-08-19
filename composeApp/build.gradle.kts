@@ -6,15 +6,16 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
-    id(libs.plugins.kotlinMultiplatform.id)
-    id(libs.plugins.androidApplication.id)
+    id(libs.plugins.kotlinMultiplatform.get().pluginId)
+    id(libs.plugins.androidApplication.get().pluginId)
     alias(libs.plugins.androidJunit5)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.kover)
 //    alias(libs.plugins.mokkery)
-//    alias(libs.plugins.kotest)
+    // TODO: https://github.com/kotest/kotest/issues/3598
+    // alias(libs.plugins.kotest)
 }
 
 val flavor = localProperties().value.flavor().ifEmpty { "release" }

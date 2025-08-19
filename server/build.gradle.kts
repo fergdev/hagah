@@ -1,6 +1,6 @@
 plugins {
     alias(serverLibs.plugins.ktor)
-    id(libs.plugins.kotlinJvm.id)
+    id(libs.plugins.kotlinJvm.get().pluginId)
     alias(libs.plugins.kotlinxSerialization)
     application
 }
@@ -52,7 +52,7 @@ dependencies {
     implementation(libs.kodein.di)
     implementation(libs.kodein.di.framework.ktor.server.jvm)
     implementation(libs.ktor.server.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json.v236)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.network.tls.certificates)
     implementation(libs.ktor.server.netty)

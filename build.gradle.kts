@@ -9,7 +9,8 @@ plugins {
     alias(libs.plugins.gradleDoctor)
     alias(libs.plugins.version.catalog.update)
 
-    alias(libs.plugins.kotest) apply false
+    // TODO: https://github.com/kotest/kotest/issues/3598
+    // alias(libs.plugins.kotest) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.kotlinxSerialization) apply false
@@ -57,10 +58,8 @@ doctor {
     disallowMultipleDaemons.set(false)
     GCWarningThreshold.set(0.10f)
     GCFailThreshold = 0.9f
-    failOnEmptyDirectories.set(true)
     warnWhenJetifierEnabled.set(true)
     negativeAvoidanceThreshold.set(500)
-    warnWhenNotUsingParallelGC.set(true)
     disallowCleanTaskDependencies.set(true)
     warnIfKotlinCompileDaemonFallback.set(true)
     javaHome {

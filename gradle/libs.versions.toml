@@ -22,7 +22,7 @@ junit = "5.13.4"
 kodeinDi = "7.26.1"
 kodeinDiFrameworkKtorServerJvm = "7.26.1"
 koin = "4.1.0"
-kotest = "6.0.0.M3"
+kotest = "6.0.0.M17"
 kotlin = "2.2.20-Beta2"
 kotlinStdlib = "2.2.20-Beta2"
 kotlinx-coroutines = "1.10.2"
@@ -103,7 +103,6 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-network-tls-certificates = { module = "io.ktor:ktor-network-tls-certificates", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
-ktor-serialization-kotlinx-json-v236 = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktorm-core = { module = "org.ktorm:ktorm-core", version.ref = "ktormCore" }
 sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbc" }

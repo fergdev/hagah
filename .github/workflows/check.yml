@@ -18,12 +18,14 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: set up JDK 21
+      - uses: actions/checkout@v5
+
+      - name: set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '24'
-          distribution: 'corretto'
+          java-version: 24
+          check-latest: true
+          distribution: zulu
           cache: gradle
 
       - name: Set local.properties
@@ -38,8 +40,9 @@ jobs:
           fileName: 'hagah.jks'
           encodedString: ${{ secrets.KEY_STORE }}
 
+      # TODO: https://github.com/kotest/kotest/issues/3598
       - name: Check
-        run: ./gradlew check koverXmlReport --warning-mode all
+        run: ./gradlew check koverXmlReport --warning-mode all -x desktopTest -x iosSimulatorArm64Test
 
       - name: Archive Android-App lint
         uses: actions/upload-artifact@v4
