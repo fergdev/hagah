@@ -30,6 +30,8 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs access to your photo library to save images that you want to share.</string>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
