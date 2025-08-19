@@ -39,7 +39,7 @@ object Config {
     const val licenseFile = "LICENSE.txt"
     const val appId = "4a07189f-4143-4a90-9f53-1eedd74ddbeb"
     const val supportEmail = "ferg.dev@outlook.com"
-    const val privacyPolicyUrl = "TODO"
+    const val privacyPolicyUrl = "https://doc-hosting.flycricket.io/hagah-privacy-policy/fa0b0892-fe29-44d4-a6ee-a879f9a2a0b3/privacy"
 
     // Versions
     val stabilityLevels = listOf("dev", "snapshot", "eap", "preview", "alpha", "beta", "m", "cr", "rc")
