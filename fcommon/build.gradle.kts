@@ -9,8 +9,14 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
+java {
+    sourceCompatibility = Config.javaVersion
+    targetCompatibility = Config.javaVersion
+}
+
 kotlin {
     explicitApi()
+    jvmToolchain(Config.javaMajorVersion)
     androidLibrary {
         namespace = "com.fergdev.fcommon"
         compileSdk = 36
